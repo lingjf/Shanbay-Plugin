@@ -1,20 +1,16 @@
 
-function isEnglish(s)
-{  
-    for(var i=0;i<s.length;i++)
-    {
-        if(s.charCodeAt(i)>126)
-        {
+function isEnglish(s) {  
+    for(var i=0;i<s.length;i++) {
+        if(s.charCodeAt(i)>126) {
             return false;
         }
     }
     return true; 
 }
 
-function isChinese(temp) 
-{ 
+function isChinese(w) {
 	var re = /[^\u4e00-\u9fa5]/; 
-	if(re.test(temp)) return false; 
+	if(re.test(w)) return false; 
 	return true; 
 }
 

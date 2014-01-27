@@ -15,10 +15,15 @@
         background-color: #f5f5f5;
         border-color: #ddd;
 
-        padding: 10px 15px;
+        padding: 6px 10px;
         border-bottom: 1px solid transparent;
         border-top-right-radius: 3px;
         border-top-left-radius: 3px;
+      }
+
+      .pp_body {
+        color: #333;
+        padding: 6px 10px;
       }
 
       #word {
@@ -59,32 +64,31 @@
   </head>
   <body>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          <span id="word"> </span>
-          <span id="pronunciation"> </span>
-        </h3>
-      </div>
-      <div class="panel-body">
-        <div id='definition'> </div>
-        <div id='oldword' style="display: none;"> 
-          <p> </p>
-          <div id='retention' class="progress">
-            <div id='current_retention' class="progress-bar" role="progressbar" style="width: 3%;">
-            </div>
-            <span id='target_retention'> </span>
-          </div>
-          <button id="old_review" type="button" class="btn btn-default" style="float: left;"> 查看 </button>
-
-          <button id="old_forget" type="button" class="btn btn-default" style="float: right;"> 忘了 </button>
-        </div>
-        <div id="newword" style="display: none;">
-          <button id="new_adding" type="button" class="btn btn-default"> 新加 </button>
-        </div>
-      </div>
+     
+    <div class="pp_heading">
+        <span id="word"> </span>
+        <span id="pronunciation"> </span>
     </div>
 
+    <div class="pp_body">
+      <div id='definition'> </div>
+      <p> </p>
+      <div id='oldword' style="display: none;">
+        <div id='retention' class="progress">
+          <div id='current_retention' class="progress-bar" role="progressbar" style="width: 3%;">
+          </div>
+          <span id='target_retention'> </span>
+        </div>
+        <button id="old_review" type="button" class="btn btn-default"> 查看 </button>
+
+        <button id="old_forget" type="button" class="btn btn-warning" style="margin-left: 30px;"> 我忘了 </button>
+      </div>
+      <div id="newword" style="display: none;">
+        <button id="new_adding" type="button" class="btn btn-success"> 添加入库 </button>
+      </div>
+      <div> </div>
+    </div>
+     
   </body>
 </html>
 
