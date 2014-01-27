@@ -1,0 +1,50 @@
+{
+  "name": "Shanbay Plugin",
+  "version": "1.1",
+  "description": "Shanbay Plugin",
+  "permissions": [
+    "<all_urls>",
+    "tts",
+    "tabs"
+  ],
+
+  "background": {
+    "scripts": [
+      "lib/jquery.js",
+      "lib/keycode.js",
+      "background.js"
+    ]
+  },
+
+  "browser_action": {
+    "default_icon": "image/icon_48.png",
+    "default_title": "Shanbay Plugin",
+    "default_popup": "popup.html"
+  },
+
+  "options_page": "options.html",
+
+  "minimum_chrome_version": "14",
+
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "all_frames": true,
+      "js": [
+      	"lib/jquery.js",
+        "lib/keycode.js",
+        "content_script.js"
+      ]
+    }
+  ],
+
+  "icons": {
+    "48": "image/icon_48.png",
+    "72": "image/icon_72.png",
+    "128": "image/icon_128.png"
+  },
+
+  "manifest_version": 2
+}
