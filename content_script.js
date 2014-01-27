@@ -1,3 +1,23 @@
+
+function isEnglish(s)
+{  
+    for(var i=0;i<s.length;i++)
+    {
+        if(s.charCodeAt(i)>126)
+        {
+            return false;
+        }
+    }
+    return true; 
+}
+
+function isChinese(temp) 
+{ 
+	var re = /[^\u4e00-\u9fa5]/; 
+	if(re.test(temp)) return false; 
+	return true; 
+}
+
 function getSelected() {
 	var focused = document.activeElement;
 	var selected;

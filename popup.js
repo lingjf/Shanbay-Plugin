@@ -61,14 +61,12 @@ function addingWord() {
 	}
 }
 
-function ttsSpeak(utterance) {
-
-	var rate = localStorage['rate'] || 1.0;
-	var pitch = localStorage['pitch'] || 1.0;
-	var volume = localStorage['volume'] || 1.0;
-	var voice = localStorage['voice'];
-	chrome.tts.speak(utterance);
+function mp3Speak(utterance) {
+	var sound = new Howl({
+		urls: [selectObject.audio]
+	}).play();
 }
+
 
 function getWord(w) {
 	var url = "http://www.shanbay.com/api/v1/bdc/search/?word=" + w;
@@ -90,7 +88,7 @@ function getWord(w) {
 				$('#definition').html(data.data.definition);
 				$('#pronunciation').html("[" + data.data.pronunciation + "]");
 
-				$('#tts').removeClass('hidden').click(ttsSpeak);
+				$('#tts').removeClass('hidden').click(mp3Speak);
 
 				if (data.data.learning_id != undefined && data.data.learning_id != 0) { 
 					if (data.data.retention != undefined && data.data.target_retention != undefined) { 
@@ -99,8 +97,7 @@ function getWord(w) {
 						$('#old_forget').removeClass('hidden').click(forgetWord);
 					}
 				} else {
-					$('#new_adding').removeClass('hidden');
-					$('#new_adding').click(addingWord);
+					$('#new_adding').removeClass('hidden').click(addingWord);
 				}
 
 				
