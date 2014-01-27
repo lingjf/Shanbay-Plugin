@@ -84,20 +84,32 @@ function getWord(w) {
 				// data.data.audio
 				// data.data.retention
 				// data.data.target_retention
-				$('h3').html(data.data.content);
-				$('#definition').html(data.data.definition);
+				$('#word').html(data.data.content);
 				$('#pronunciation').html("[" + data.data.pronunciation + "]");
+				$('#pronunciation').mouseenter(mp3Speak);	
 
-				$('#tts').removeClass('hidden').click(mp3Speak);
+
+				$('#definition').html(data.data.definition);
 
 				if (data.data.learning_id != undefined && data.data.learning_id != 0) { 
 					if (data.data.retention != undefined && data.data.target_retention != undefined) { 
-						$('#retention').html("" + data.data.retention + " / " + data.data.target_retention);
-						$('#old_review').removeClass('hidden').click(reviewWord);
-						$('#old_forget').removeClass('hidden').click(forgetWord);
+						$('#current_retention').html(data.data.retention);
+						$('#target_retention').html(data.data.target_retention);
+
+						var percentage = data.data.retention * 100.0 / data.data.target_retention;
+						if (percentage < 3.0) {
+							percentage = 3.0;
+						}
+						$('#current_retention').css("width", "" + percentage + "%");
+
+						$('#old_review').click(reviewWord);
+						$('#old_forget').click(forgetWord);
+
+						$('#oldword').show();
 					}
 				} else {
-					$('#new_adding').removeClass('hidden').click(addingWord);
+					$('#new_adding').click(addingWord);
+					$('#newword').show();
 				}
 
 				
