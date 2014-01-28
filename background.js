@@ -3,7 +3,14 @@ var selectWord = null;
 
 
 function speak(utterance) {	
-	chrome.tts.speak(utterance);
+  var ttsSpeakOut = window.localStorage["ttsSpeakOut"];
+  if (ttsSpeakOut == undefined) {
+    ttsSpeakOut = "true";
+  }
+
+  if (ttsSpeakOut == "true") { 
+    chrome.tts.speak(utterance);
+  }
 }
 
 
@@ -26,15 +33,11 @@ function loadContentScriptInAllTabs() {
 function initBackground() {
 	loadContentScriptInAllTabs();
 
-	chrome.runtime.onMessage.addListener(function(request, sender,
-			sendResponse) {
+	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		if (request['select']) {
-			selectWord
-		 = request['select'];
-			console.log("background.js select : " + selectWord
-			);
+			selectWord = request['select'];
+			console.log("background.js select : " + selectWord);
 			speak(selectWord);
-
 		} 
 	});
 

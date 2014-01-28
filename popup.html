@@ -7,10 +7,10 @@
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
       body {
-        min-width: 260px;
+        min-width: 280px;
       }
 
-      .pp_heading {
+      #pp_heading {
         color: #333;
         background-color: #f5f5f5;
         border-color: #ddd;
@@ -19,9 +19,11 @@
         border-bottom: 1px solid transparent;
         border-top-right-radius: 3px;
         border-top-left-radius: 3px;
+        
+        margin-top: 2px;
       }
 
-      .pp_body {
+      #pp_body {
         color: #333;
         padding: 6px 10px;
       }
@@ -54,23 +56,31 @@
       #target_retention {
         margin-right: 5px;
       }
-      
+
     </style>    
 
 	<script src="lib/jquery.js"></script>
   <script src="lib/howler.js"></script>
+  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
 	<script src="popup.js"></script>
 
   </head>
   <body>
 
+
+    <div>
+      <div class="input-group">
+        <span id="wordquery" class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+        <input id="queryword" type="text" class="form-control">
+      </div>
+    </div>
      
-    <div class="pp_heading">
+    <div id="pp_heading">
         <span id="word"> </span>
         <span id="pronunciation"> </span>
     </div>
 
-    <div class="pp_body">
+    <div id="pp_body">
       <div id='definition'> </div>
       <p> </p>
       <div id='oldword' style="display: none;">
@@ -79,15 +89,33 @@
           </div>
           <span id='target_retention'> </span>
         </div>
-        <button id="old_review" type="button" class="btn btn-default"> 查看 </button>
+
+        <div class="btn-group">
+          <button id="old_review" type="button" class="btn btn-info"> 查看 </button>
+          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a id="old_iciba_review" href="#"> 金山词霸 </a></li>
+            <li><a id="old_youdao_review" href="#"> 有道词典 </a></li>
+            <li><a id="old_vocabulary_review" href="#">Vocabulary.com</a></li>
+            <li><a id="old_etymology_review" href="#"> Etymonline.com </a></li>
+            <li class="divider"></li>
+            <li><a id="old_shanbay_review" href="#"> *扇贝网* </a></li>
+          </ul>
+        </div>
 
         <button id="old_forget" type="button" class="btn btn-warning" style="margin-left: 30px;"> 我忘了 </button>
       </div>
       <div id="newword" style="display: none;">
         <button id="new_adding" type="button" class="btn btn-success"> 添加入库 </button>
       </div>
-      <div> </div>
+      <div id="error_msg" class="alert alert-warning" style="display: none; margin-top: 6px;"> </div>
+
     </div>
+
+
      
   </body>
 </html>

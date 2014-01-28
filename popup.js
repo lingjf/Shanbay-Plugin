@@ -1,10 +1,56 @@
 var selectWord = null;
 var selectObject = null;
 
+function loginShanbay() {
+	chrome.tabs.create({
+        url:"http://www.shanbay.com/accounts/login/"
+    })
+}
 
-function reviewWord() {
+
+function reviewWord_shanbay() {
 	if (selectObject && selectObject.learning_id) { 
 		var url = "http://www.shanbay.com/review/learning/" + selectObject.learning_id;
+		chrome.tabs.create({
+			url : url,
+			selected : true
+		});
+	}
+}
+
+function reviewWord_iciba() {
+	if (selectObject && selectObject.content) { 
+		var url = "http://www.iciba.com/" + selectObject.content;
+		chrome.tabs.create({
+			url : url,
+			selected : true
+		});
+	}
+}
+
+function reviewWord_youdao() {
+	if (selectObject && selectObject.content) { 
+		var url = "http://dict.youdao.com/search?q=" + selectObject.content;
+		chrome.tabs.create({
+			url : url,
+			selected : true
+		});
+	}
+}
+
+function reviewWord_vocabulary() {
+	if (selectObject && selectObject.content) { 
+		var url = "http://www.vocabulary.com/dictionary/" + selectObject.content;
+		chrome.tabs.create({
+			url : url,
+			selected : true
+		});
+	}
+}
+
+function reviewWord_etymology() {
+	if (selectObject && selectObject.content) { 
+		var url = "http://www.etymonline.com/index.php?term=" + selectObject.content;
 		chrome.tabs.create({
 			url : url,
 			selected : true
@@ -52,7 +98,8 @@ function addingWord() {
 				}
 			},
 			error : function() {
-				
+				$("#error_msg").html("添加失败，<br>可能没有<a href='#'>登录扇贝网</a>。").show();
+				$("#error_msg").click(loginShanbay);
 			},
 			complete : function() {
 				
@@ -68,8 +115,8 @@ function mp3Speak(utterance) {
 }
 
 
-function getWord(w) {
-	var url = "http://www.shanbay.com/api/v1/bdc/search/?word=" + w;
+function getWord() {
+	var url = "http://www.shanbay.com/api/v1/bdc/search/?word=" + selectWord;
 	$.ajax({
 		url : url,
 		type : 'GET',
@@ -77,46 +124,13 @@ function getWord(w) {
 		contentType : "application/json; charset=utf-8",
 		success : function(data) {
 			console.log(data);
-
 			if (data.status_code == 0 && data.msg == "SUCCESS") {
 				selectObject = data.data;
-				// data.data.learning_id
-				// data.data.audio
-				// data.data.retention
-				// data.data.target_retention
-				$('#word').html(data.data.content);
-				$('#pronunciation').html("[" + data.data.pronunciation + "]");
-				$('#pronunciation').mouseenter(mp3Speak);	
-
-
-				$('#definition').html(data.data.definition);
-
-				if (data.data.learning_id != undefined && data.data.learning_id != 0) { 
-					if (data.data.retention != undefined && data.data.target_retention != undefined) { 
-						$('#current_retention').html(data.data.retention);
-						$('#target_retention').html(data.data.target_retention);
-
-						var percentage = data.data.retention * 100.0 / data.data.target_retention;
-						if (percentage < 3.0) {
-							percentage = 3.0;
-						}
-						$('#current_retention').css("width", "" + percentage + "%");
-
-						$('#old_review').click(reviewWord);
-						$('#old_forget').click(forgetWord);
-
-						$('#oldword').show();
-					}
-				} else {
-					$('#new_adding').click(addingWord);
-					$('#newword').show();
-				}
-
-				
+				showWord();
 			}
 		},
 		error : function() {
-			
+			$("#error_msg").html("查询失败，<br>可能 . . . ").show();
 		},
 		complete : function() {
 			
@@ -124,11 +138,87 @@ function getWord(w) {
 	});
 }
 
+function showWord() {
+	$('#word').html(selectObject.content);
+	$('#pronunciation').html("[" + selectObject.pronunciation + "]");
+	$('#pronunciation').mouseenter(mp3Speak);	
+
+	$('#definition').html(selectObject.definition.split('\n').join('<br>'));
+
+	if (selectObject.learning_id != undefined && selectObject.learning_id != 0) { 
+		if (selectObject.retention != undefined && selectObject.target_retention != undefined) { 
+			$('#current_retention').html(selectObject.retention);
+			$('#target_retention').html(selectObject.target_retention);
+
+			var percentage = selectObject.retention * 100.0 / selectObject.target_retention;
+			if (percentage < 3.0) {
+				percentage = 3.0;
+			}
+			$('#current_retention').css("width", "" + percentage + "%");
+		}
+
+		$('#oldword').show();
+		
+	} else {
+		
+		$('#newword').show();
+	}	
+}
+
+function queryWord(w) {
+	selectWord = w;
+	if (selectWord !== undefined && selectWord !== null && selectWord.length > 0) {
+		$('#pp_heading, #pp_body').show();
+
+		$('#word').html(selectWord);
+		$('#definition').html("<img src='image/inquire.gif'/>");
+
+		$('#oldword').hide();
+		$('#newword').hide();
+		$("#error_msg").hide();
+		
+		getWord();
+		
+	} else {
+		$('#pp_heading, #pp_body').hide();
+	}
+}
+
+function onQuery() {
+	var queried = $('#queryword').val();
+
+	queried = queried.trim().match(/^[a-zA-Z\s']+$/);
+	if (queried !== undefined && queried !== null && queried.length > 0) {
+		queryWord(queried[0]);
+	}
+}
+
 $(document).ready(function() {
 
+	var RealtimeQuery = window.localStorage["RealtimeQuery"];
+	if (RealtimeQuery == undefined) {
+		RealtimeQuery = "false";
+	}
+	if (RealtimeQuery == "true") {
+		$('#queryword').keyup(onQuery);
+	} else {
+		$('#queryword').change(onQuery);
+	}
+
+	$('#wordquery').click(onQuery);
+
+	$('#old_review').click(reviewWord_shanbay);
+	$('#old_iciba_review').click(reviewWord_iciba);
+	$('#old_youdao_review').click(reviewWord_youdao);
+	$('#old_vocabulary_review').click(reviewWord_vocabulary);
+	$('#old_etymology_review').click(reviewWord_etymology);
+	$('#old_shanbay_review').click(reviewWord_shanbay);
+
+	$('#old_forget').click(forgetWord);
+	$('#new_adding').click(addingWord);
+
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
-		selectWord = backgroundPage.selectWord;
-		getWord(selectWord);
+		queryWord(backgroundPage.selectWord);
 	});
 
 });
