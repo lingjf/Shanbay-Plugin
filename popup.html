@@ -8,6 +8,7 @@
     <style>
       body {
         min-width: 280px;
+        padding: 0;
       }
 
       #pp_heading {
@@ -17,15 +18,16 @@
 
         padding: 6px 10px;
         border-bottom: 1px solid transparent;
-        border-top-right-radius: 3px;
-        border-top-left-radius: 3px;
         
-        margin-top: 2px;
+        margin-top: 1px;
+        display: none;
       }
 
       #pp_body {
         color: #333;
         padding: 6px 10px;
+
+        display: none;
       }
 
       #word {
@@ -38,11 +40,11 @@
         font-weight: normal;
         line-height: 18px;
 
-        margin-left: 14px;
+        margin-left: 8px;
       }
 
       #definition {
-        font-size: 18px;
+        font-size: 16px;
       }
 
       #retention {
@@ -99,10 +101,8 @@
           <ul class="dropdown-menu" role="menu">
             <li><a id="old_iciba_review" href="#"> 金山词霸 </a></li>
             <li><a id="old_youdao_review" href="#"> 有道词典 </a></li>
-            <li><a id="old_vocabulary_review" href="#">Vocabulary.com</a></li>
+            <li><a id="old_vocabulary_review" href="#"> Vocabulary.com </a></li>
             <li><a id="old_etymology_review" href="#"> Etymonline.com </a></li>
-            <li class="divider"></li>
-            <li><a id="old_shanbay_review" href="#"> *扇贝网* </a></li>
           </ul>
         </div>
 

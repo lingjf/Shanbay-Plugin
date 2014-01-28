@@ -6,7 +6,8 @@
     "<all_urls>",
     "tts",
     "tabs",
-    "notifications"
+    "clipboardRead",
+    "clipboardWrite"
   ],
 
   "background": {
@@ -29,9 +30,7 @@
 
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
+      "matches": [ "<all_urls>" ],
       "all_frames": true,
       "js": [
       	"lib/jquery.js",

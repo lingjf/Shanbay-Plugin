@@ -194,6 +194,7 @@ function onQuery() {
 }
 
 $(document).ready(function() {
+	// document.execCommand('paste');
 
 	var RealtimeQuery = window.localStorage["RealtimeQuery"];
 	if (RealtimeQuery == undefined) {
