@@ -13,6 +13,7 @@
   "background": {
     "scripts": [
       "lib/jquery.js",
+      "lib/preference.js",
       "background.js"
     ]
   },

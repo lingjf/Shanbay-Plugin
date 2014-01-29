@@ -206,11 +206,7 @@ function onQuery() {
 $(document).ready(function() {
 	// document.execCommand('paste');
 
-	var RealtimeQuery = window.localStorage["RealtimeQuery"];
-	if (RealtimeQuery == undefined) {
-		RealtimeQuery = "true";
-	}
-	if (RealtimeQuery == "true") {
+	if (preference.get().RealtimeQuery) {
 		$('#queryword').keyup(onQuery);
 	} else {
 		$('#queryword').change(onQuery);

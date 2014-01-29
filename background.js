@@ -4,12 +4,14 @@ var selectWord = null;
 
 function ttsSpeak(utterance) {	
   if (utterance !== undefined && utterance !== null && utterance.length > 0) {
-    var ttsSpeakOut = window.localStorage["ttsSpeakOut"];
-    if (ttsSpeakOut == undefined) {
-      ttsSpeakOut = "true";
-    }
+    // var ttsSpeakOut = window.localStorage["ttsSpeakOut"];
+    // if (ttsSpeakOut == undefined) {
+    //   ttsSpeakOut = "true";
+    // }
 
-    if (ttsSpeakOut == "true") { 
+    console.log(preference.get());
+
+    if (preference.get().TtsSpeakOut) { 
       chrome.tts.speak(utterance, {'rate': 0.8});
     }
   }
