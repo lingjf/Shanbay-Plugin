@@ -70,7 +70,8 @@ function forgetWord() {
 			success : function(data) {
 				console.log(data);
 				if (data.status_code == 0 && data.msg == "SUCCESS") {
-					window.location.reload();
+					// window.location.reload();
+					queryWord(selectObject.content);
 				}
 			},
 			error : function() {
@@ -94,7 +95,8 @@ function addingWord() {
 			success : function(data) {
 				console.log(data);
 				if (data['id']) {
-					window.location.reload();
+					// window.location.reload();
+					queryWord(selectObject.content);
 				}
 			},
 			error : function() {
@@ -127,13 +129,16 @@ function getWord() {
 			if (data.status_code == 0 && data.msg == "SUCCESS") {
 				selectObject = data.data;
 				showWord();
+			} else {
+				$('#definition').html(data.msg);
 			}
 		},
 		error : function() {
+			console.log("getWord error");
 			$("#error_msg").html("查询失败，<br>可能 . . . ").show();
 		},
 		complete : function() {
-			
+			console.log("getWord complete");
 		}
 	});
 }
@@ -141,7 +146,7 @@ function getWord() {
 function showWord() {
 	$('#word').html(selectObject.content);
 	$('#pronunciation').html("[" + selectObject.pronunciation + "]");
-	$('#pronunciation').mouseenter(mp3Speak);	
+	$('#pronunciation').mouseenter(mp3Speak);
 
 	$('#definition').html(selectObject.definition.split('\n').join('<br>'));
 
@@ -153,6 +158,8 @@ function showWord() {
 			var percentage = selectObject.retention * 100.0 / selectObject.target_retention;
 			if (percentage < 3.0) {
 				percentage = 3.0;
+			} else if (percentage > 100.0) {
+				percentage = 100.0;
 			}
 			$('#current_retention').css("width", "" + percentage + "%");
 		}
@@ -171,6 +178,7 @@ function queryWord(w) {
 		$('#pp_heading, #pp_body').show();
 
 		$('#word').html(selectWord);
+		$('#pronunciation').html("");
 		$('#definition').html("<img src='image/inquire.gif'/>");
 
 		$('#oldword').hide();
@@ -187,9 +195,11 @@ function queryWord(w) {
 function onQuery() {
 	var queried = $('#queryword').val();
 
-	queried = queried.trim().match(/^[a-zA-Z\s']+$/);
-	if (queried !== undefined && queried !== null && queried.length > 0) {
-		queryWord(queried[0]);
+	if (queried !== undefined && queried !== null) {
+		queried = queried.trim();
+		if (/^[a-zA-Z\s']+$/.test(queried)) {
+			queryWord(queried);
+		}
 	}
 }
 
@@ -198,7 +208,7 @@ $(document).ready(function() {
 
 	var RealtimeQuery = window.localStorage["RealtimeQuery"];
 	if (RealtimeQuery == undefined) {
-		RealtimeQuery = "false";
+		RealtimeQuery = "true";
 	}
 	if (RealtimeQuery == "true") {
 		$('#queryword').keyup(onQuery);

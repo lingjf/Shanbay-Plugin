@@ -13,7 +13,6 @@
   "background": {
     "scripts": [
       "lib/jquery.js",
-      "lib/keycode.js",
       "background.js"
     ]
   },
@@ -34,7 +33,6 @@
       "all_frames": true,
       "js": [
       	"lib/jquery.js",
-        "lib/keycode.js",
         "content_script.js"
       ]
     }

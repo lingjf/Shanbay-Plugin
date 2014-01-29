@@ -2,14 +2,16 @@
 var selectWord = null;
 
 
-function speak(utterance) {	
-  var ttsSpeakOut = window.localStorage["ttsSpeakOut"];
-  if (ttsSpeakOut == undefined) {
-    ttsSpeakOut = "true";
-  }
+function ttsSpeak(utterance) {	
+  if (utterance !== undefined && utterance !== null && utterance.length > 0) {
+    var ttsSpeakOut = window.localStorage["ttsSpeakOut"];
+    if (ttsSpeakOut == undefined) {
+      ttsSpeakOut = "true";
+    }
 
-  if (ttsSpeakOut == "true") { 
-    chrome.tts.speak(utterance);
+    if (ttsSpeakOut == "true") { 
+      chrome.tts.speak(utterance, {'rate': 0.8});
+    }
   }
 }
 
@@ -19,9 +21,7 @@ function loadContentScriptInAllTabs() {
     for (var i = 0; i < windows.length; i++) {
       var tabs = windows[i].tabs;
       for (var j = 0; j < tabs.length; j++) {
-        chrome.tabs.executeScript(
-            tabs[j].id,
-            {file: 'lib/keycode.js', allFrames: true});
+
         chrome.tabs.executeScript(
             tabs[j].id,
             {file: 'content_script.js', allFrames: true});
@@ -34,10 +34,11 @@ function initBackground() {
 	loadContentScriptInAllTabs();
 
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		if (request['select']) {
+    console.log(request);
+		if (request['select'] != undefined) {
 			selectWord = request['select'];
 			console.log("background.js select : " + selectWord);
-			speak(selectWord);
+			ttsSpeak(selectWord);
 		} 
 	});
 
