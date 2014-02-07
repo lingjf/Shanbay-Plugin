@@ -11,6 +11,11 @@
         padding: 0;
       }
 
+      #pp_candidate {
+        margin-left: 38px;
+        display: none;
+      }
+
       #pp_heading {
         color: #333;
         background-color: #f5f5f5;
@@ -65,17 +70,23 @@
   <script src="lib/howler.js"></script>
   <script src="lib/bootstrap/js/bootstrap.min.js"></script>
   <script src="lib/preference.js"></script>
+  <script src="lib/wordlist.js"></script>
+  <script src="lib/literal.js"></script>
 	<script src="popup.js"></script>
 
   </head>
   <body>
 
 
-    <div>
+    <div id="pp_search">
       <div class="input-group">
         <span id="wordquery" class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
         <input id="queryword" type="text" class="form-control">
       </div>
+    </div>
+
+    <div id="pp_candidate" class="list-group">
+
     </div>
      
     <div id="pp_heading">
