@@ -34,7 +34,7 @@ function onSelected(e) {
 			'select' : selected
 		});
 		lastSelected = selected;
-		console.log("selected: "  + selected);
+		// console.log("selected: "  + selected);
 	}
 }
 

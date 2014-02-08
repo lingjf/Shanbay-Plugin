@@ -1,7 +1,7 @@
 {
   "name": "Shanbay Plugin",
-  "version": "1.2",
-  "description": "Shanbay Plugin",
+  "version": "1.3",
+  "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory",
   "permissions": [
     "<all_urls>",
     "tts",

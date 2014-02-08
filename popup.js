@@ -77,8 +77,8 @@ function reviewWord_etymology() {
 }
 
 function forgetWord() {
-	if (M.vocabulary) { 
-		var url = "http://www.shanbay.com/api/v1/bdc/learning/" + M.vocabulary;
+	if (M.learning_id) { 
+		var url = "http://www.shanbay.com/api/v1/bdc/learning/" + M.learning_id;
 		$.ajax({
 			url : url,
 			type : 'PUT',
@@ -143,7 +143,7 @@ function getWord() {
 		dataType : 'JSON',
 		contentType : "application/json; charset=utf-8",
 		success : function(data) {
-			console.log(data);
+			// console.log(data);
 			if (getting == M.word) {
 				if (data.status_code == 0 && data.msg == "SUCCESS") {
 
@@ -196,7 +196,7 @@ function onQuery() {
 
 	if (queried !== undefined && queried !== null) {
 		queried = queried.trim();
-		var candidate = getCanditate(queried, 120);
+		var candidate = getCandidate(queried, 120);
 		if (candidate.length == 1) {
 			queryWord(candidate[0]);
 		} else {

@@ -18,7 +18,7 @@ test( "wildCard2Regex", function() {
   equal( wildCard2Regex('ab?c'), "ab.c","Passed!" );
 });
 
-test( "getCanditate", function() {
+test( "getCandidate", function() {
 
 	var e = [
 		"abaca",
@@ -28,6 +28,6 @@ test( "getCanditate", function() {
 		"huckaback"
 	];
 
-	var a = getCanditate('abac*', 0);
+	var a = getCandidate('abac*', 0);
 	deepEqual(a, e, "Passed!" );
 });
