@@ -1,7 +1,9 @@
 {
   "name": "Shanbay Plugin",
-  "version": "1.3",
+  "version": "1.4",
   "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory",
+  "manifest_version": 2,
+
   "permissions": [
     "<all_urls>",
     "tts",
@@ -45,5 +47,5 @@
     "128": "image/icon_128.png"
   },
 
-  "manifest_version": 2
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';"
 }

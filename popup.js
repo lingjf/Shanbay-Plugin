@@ -191,28 +191,85 @@ function queryWord(w) {
 	render();
 }
 
+function translateWord(text)
+{
+	var url = "http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{oooo}}";
+	$.ajax({
+		url : encodeURI(url.replace("{{oooo}}", text)),
+		type : 'GET',
+		success : function(data) {
+			// console.log(data);
+			var result = eval(data); // JSON.parse(data) does not work 
+			// console.log(result);
+			var matchs = [];
+			var candidate = [];
+			for (i in result[1]) {
+				for (j in result[1][i][1]) {
+					matchs.push(result[1][i][1][j]);
+				}
+				for (j in result[1][i][2]) {
+					var one = result[1][i][2][j][0];
+					var des = result[1][i][2][j][1].join("；") + ". " + result[1][i][0];
+					candidate.push([one, des]);
+				}
+			}
+			// console.log(matchs);
+			// console.log(candidate);
+			resetM();
+			if (candidate.length == 1) {
+				queryWord(candidate[0][0]);
+			} else {
+				M.candidate = candidate;
+				render();
+			}
+		},
+		error : function() {
+			// console.log("translateWord error");
+			M.error_msg = "查询失败，<br>可能 . . . ";
+			render();
+		},
+		complete : function() {
+			// console.log("translateWord complete");
+		}
+	});
+}
+
+var lastQueried = null;
 function onQuery() {
 	var queried = $('#queryword').val();
 
 	if (queried !== undefined && queried !== null) {
 		queried = queried.trim();
-		var candidate = getCandidate(queried, 120);
-		if (candidate.length == 1) {
-			queryWord(candidate[0]);
+		if (queried == lastQueried) {
+			return;
+		}
+		lastQueried = queried;
+
+		if (hasChinese(queried)) {
+			translateWord(queried);
+		} else if (areEnglish(queried)){
+			queryWord(queried);
 		} else {
-			resetM();
-			M.candidate = candidate;
-			render();
+			var candidate = getCandidate(queried, 120);
+			if (candidate.length == 1) {
+				queryWord(candidate[0][0]);
+			} else {
+				resetM();
+				M.candidate = candidate;
+				render();
+			}
 		}
 	}
 }
 
 function onSelect() {
-	queryWord($(this).text());
+	queryWord($(this).prop("candidate"));
 }
 
 function pronunceWord() {
-	var sound = new Howl({urls: [M.audio] }).play();
+	if (M.audio) {
+		var sound = new Howl({urls: [M.audio] }).play();
+	}
 }
 
 function render() {
@@ -223,7 +280,8 @@ function render() {
 	if (M.candidate != null && M.candidate.length > 1) {
 		$('#pp_candidate').empty();
 		for (i in M.candidate) {
-			var c = $("<a href='#' class='list-group-item'>" + M.candidate[i] +"</a>");
+			var c = $("<a href='#' class='list-group-item'>" + M.candidate[i].join(" ") +"</a>");
+			c.prop("candidate", M.candidate[i][0]);
 			c.click(onSelect);
 			$('#pp_candidate').append(c);
 		}
