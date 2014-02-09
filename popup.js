@@ -14,7 +14,12 @@ function resetM() {
 		target_retention : null,
 		percentage : null,
 		error_msg : null,
-		login_shanbay : null
+		login_shanbay : null,
+
+		geting : false,
+		translating : false,
+		adding : false,
+		forgeting : false
 	};
 }
 
@@ -77,7 +82,9 @@ function reviewWord_etymology() {
 }
 
 function forgetWord() {
-	if (M.learning_id) { 
+	if (M.learning_id) {
+		M.forgeting = true;
+		render(); 
 		var url = "http://www.shanbay.com/api/v1/bdc/learning/" + M.learning_id;
 		$.ajax({
 			url : url,
@@ -90,12 +97,15 @@ function forgetWord() {
 				if (data.status_code == 0 && data.msg == "SUCCESS") {
 					queryWord(M.vocabulary);
 				} else {
+					M.forgeting = false;
 					M.error_msg = "操作失败. " + data.msg;
 					render();
 				}
 			},
 			error : function() {
-				
+				M.forgeting = false;
+				M.error_msg = "操作失败.";
+				render();
 			},
 			complete : function() {
 				
@@ -106,6 +116,8 @@ function forgetWord() {
 
 function addingWord() {
 	if (M.vocabulary) { 
+		M.adding = true;
+		render();
 		var url = "http://www.shanbay.com/api/learning/add/" + M.vocabulary;
 		$.ajax({
 			url : url,
@@ -113,16 +125,17 @@ function addingWord() {
 			dataType : 'JSON',
 			contentType : "application/json; charset=utf-8",
 			success : function(data) {
-				console.log(data);
+				//console.log(data);
 				if (data['id']) {
-					// window.location.reload();
 					queryWord(M.vocabulary);
 				} else {
+					M.adding = false;
 					M.error_msg = "添加失败.";
 					render();
 				}
 			},
 			error : function() {
+				M.adding = false;
 				M.error_msg = "添加失败，<br>可能没有";
 				M.login_shanbay = true;
 				render();
@@ -135,7 +148,9 @@ function addingWord() {
 }
 
 function getWord() {
-	var getting = M.word;
+	M.geting = true;
+	render();
+	var go = M.word;
 	var url = "http://www.shanbay.com/api/v1/bdc/search/?word=" + M.word;
 	$.ajax({
 		url : url,
@@ -144,7 +159,7 @@ function getWord() {
 		contentType : "application/json; charset=utf-8",
 		success : function(data) {
 			// console.log(data);
-			if (getting == M.word) {
+			if (go == M.word) {
 				if (data.status_code == 0 && data.msg == "SUCCESS") {
 
 					M.vocabulary = data.data.content;
@@ -164,11 +179,13 @@ function getWord() {
 				} else {
 					M.error_msg = data.msg;
 				}
+				M.geting = false;
 				render();
 			}
 		},
 		error : function() {
-			if (getting == M.word) {
+			if (go == M.word) {
+				M.geting = false;
 				M.error_msg = "查询失败，<br>可能 . . . ";
 				render();
 			}
@@ -193,12 +210,14 @@ function queryWord(w) {
 
 function translateWord(text)
 {
+	M.translating = true;
+	render();
 	var url = "http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{oooo}}";
 	$.ajax({
 		url : encodeURI(url.replace("{{oooo}}", text)),
 		type : 'GET',
 		success : function(data) {
-			console.log(data);
+			// console.log(data);
 			var result = eval(data); // JSON.parse(data) does not work 
 			// console.log(result);
 			var matchs = [];
@@ -214,8 +233,9 @@ function translateWord(text)
 				}
 			}
 			// console.log(matchs);
-			console.log(candidate);
+			// console.log(candidate);
 			resetM();
+			M.translating = false;
 			if (candidate.length == 1) {
 				queryWord(candidate[0][0]);
 			} else {
@@ -224,7 +244,8 @@ function translateWord(text)
 			}
 		},
 		error : function() {
-			console.log("translateWord error");
+			//console.log("translateWord error");
+			M.translating = false;
 			M.error_msg = "查询失败，<br>可能 . . . ";
 			render();
 		},
@@ -277,6 +298,12 @@ function render() {
 	$('#oldword, #newword').hide();
 	$("#error_msg").hide();
 
+	if (M.translating || M.geting) {
+		$('#queryword').css("background", "url('image/inquire.gif') no-repeat right center");
+	} else {
+		$('#queryword').css("background", "");
+	}
+
 	if (M.candidate != null && M.candidate.length > 1) {
 		$('#pp_candidate').empty();
 		for (i in M.candidate) {
@@ -304,7 +331,11 @@ function render() {
 			}
 			$('#oldword').show();
 		} else {
-			
+			if (M.adding) {
+				$('#adding_waiting').html("<img src='image/inquire.gif'/>");
+			} else {
+				$('#adding_waiting').html("");
+			}
 			$('#newword').show();
 		}	
 
@@ -313,7 +344,7 @@ function render() {
 		
 		$('#word').html(M.word);
 		$('#pronunciation').html("");
-		$('#definition').html("<img src='image/inquire.gif'/>");
+		$('#definition').html("");
 	}
 
 	if (M.error_msg != null) {
@@ -354,6 +385,8 @@ $(document).ready(function() {
 
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
 		var word = backgroundPage.selectWord;
+		$('#queryword').prop("placeholder", word);
+
 		if (areChinese(word)) {
 			translateWord(word);
 		} else {
