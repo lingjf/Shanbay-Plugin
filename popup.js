@@ -208,13 +208,13 @@ function queryWord(w) {
 	render();
 }
 
-function translateWord(text)
+function translateWord(w)
 {
 	M.translating = true;
 	render();
-	var url = "http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{oooo}}";
+	var url = "http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{text}}";
 	$.ajax({
-		url : encodeURI(url.replace("{{oooo}}", text)),
+		url : encodeURI(url.replace("{{text}}", w)),
 		type : 'GET',
 		success : function(data) {
 			// console.log(data);
@@ -240,6 +240,9 @@ function translateWord(text)
 				queryWord(candidate[0][0]);
 			} else {
 				M.candidate = candidate;
+				if (M.candidate.length == 0) {
+					M.error_msg = "翻译失败，没有对应的单词。 ";
+				}
 				render();
 			}
 		},
@@ -277,13 +280,16 @@ function onQuery() {
 			} else {
 				resetM();
 				M.candidate = candidate;
+				if (M.candidate.length == 0) {
+					M.error_msg = "匹配失败，没有相应的单词。 ";
+				}
 				render();
 			}
 		}
 	}
 }
 
-function onSelect() {
+function onChoice() {
 	queryWord($(this).prop("candidate"));
 }
 
@@ -309,7 +315,7 @@ function render() {
 		for (i in M.candidate) {
 			var c = $("<a href='#' class='list-group-item'>" + M.candidate[i].join(" ") +"</a>");
 			c.prop("candidate", M.candidate[i][0]);
-			c.click(onSelect);
+			c.click(onChoice);
 			$('#pp_candidate').append(c);
 		}
 		$('#pp_candidate').show();

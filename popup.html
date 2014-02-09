@@ -11,6 +11,9 @@
         padding: 0;
       }
 
+      #pp_search {
+      }
+
       #pp_candidate {
         margin-left: 38px;
         display: none;
@@ -64,6 +67,11 @@
         margin-right: 5px;
       }
 
+      #error_msg {
+        display: none; 
+        margin: 3px 0 0 0;
+      }
+
     </style>    
 
 	<script src="lib/jquery.js"></script>
@@ -75,9 +83,9 @@
 	<script src="popup.js"></script>
 
   </head>
+
+
   <body>
-
-
     <div id="pp_search">
       <div class="input-group">
         <span id="wordquery" class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
@@ -85,9 +93,7 @@
       </div>
     </div>
 
-    <div id="pp_candidate" class="list-group">
-
-    </div>
+    <div id="pp_candidate" class="list-group"> </div>
      
     <div id="pp_heading">
         <span id="word"> </span>
@@ -99,8 +105,7 @@
       <p> </p>
       <div id='oldword' style="display: none;">
         <div id='retention' class="progress">
-          <div id='current_retention' class="progress-bar" role="progressbar" style="width: 3%;">
-          </div>
+          <div id='current_retention' class="progress-bar" role="progressbar" style="width: 3%;"> </div>
           <span id='target_retention'> </span>
         </div>
 
@@ -128,7 +133,7 @@
 
     </div>
 
-    <div id="error_msg" class="alert alert-warning" style="display: none; margin-top: 6px;"> </div>
+    <div id="error_msg" class="alert alert-warning"> </div>
   </body>
 </html>
 
