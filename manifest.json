@@ -16,6 +16,7 @@
     "scripts": [
       "lib/jquery.js",
       "lib/preference.js",
+      "lib/literal.js",
       "background.js"
     ]
   },

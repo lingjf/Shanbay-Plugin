@@ -15,9 +15,7 @@ function getSelected() {
 	}
 	if (selected !== undefined && selected !== null) {
 		selected = selected.trim();
-		if (/^[a-zA-Z\s']+$/.test(selected)) {
-			return selected;
-		}
+		return selected;
 	}
 
 	return '';

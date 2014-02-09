@@ -67,14 +67,9 @@ test( "wildCard2Regex", function() {
 
 test( "getCandidate", function() {
 
-	var e = [
-		"abaca",
-		"aback",
-		"abacus",
-		"abacuses"
-	];
+	var e1 = [["abaca", ""], ["aback", ""], ["abacus", ""], ["abacuses", ""] ];
 
-	var a = getCandidate('abac*', 0);
-	deepEqual(a, e, "Passed!" );
+	var a1 = getCandidate('abac*', 0);
+	deepEqual(a1, e1, "Passed!" );
 });
 

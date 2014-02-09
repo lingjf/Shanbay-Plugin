@@ -198,7 +198,7 @@ function translateWord(text)
 		url : encodeURI(url.replace("{{oooo}}", text)),
 		type : 'GET',
 		success : function(data) {
-			// console.log(data);
+			console.log(data);
 			var result = eval(data); // JSON.parse(data) does not work 
 			// console.log(result);
 			var matchs = [];
@@ -214,7 +214,7 @@ function translateWord(text)
 				}
 			}
 			// console.log(matchs);
-			// console.log(candidate);
+			console.log(candidate);
 			resetM();
 			if (candidate.length == 1) {
 				queryWord(candidate[0][0]);
@@ -224,7 +224,7 @@ function translateWord(text)
 			}
 		},
 		error : function() {
-			// console.log("translateWord error");
+			console.log("translateWord error");
 			M.error_msg = "查询失败，<br>可能 . . . ";
 			render();
 		},
@@ -353,7 +353,12 @@ $(document).ready(function() {
 	$('#new_adding').click(addingWord);
 
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
-		queryWord(backgroundPage.selectWord);
+		var word = backgroundPage.selectWord;
+		if (areChinese(word)) {
+			translateWord(word);
+		} else {
+			queryWord(word);
+		}
 	});
 
 });

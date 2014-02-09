@@ -4,14 +4,8 @@ var selectWord = null;
 
 function ttsSpeak(utterance) {	
   if (utterance !== undefined && utterance !== null && utterance.length > 0) {
-    // var ttsSpeakOut = window.localStorage["ttsSpeakOut"];
-    // if (ttsSpeakOut == undefined) {
-    //   ttsSpeakOut = "true";
-    // }
 
-    console.log(preference.get());
-
-    if (preference.get().TtsSpeakOut) { 
+    if (areEnglish(utterance) && preference.get().TtsSpeakOut) { 
       chrome.tts.speak(utterance, {'rate': 0.8});
     }
   }
@@ -39,7 +33,7 @@ function initBackground() {
     console.log(request);
 		if (request['select'] != undefined) {
 			selectWord = request['select'];
-			console.log("background.js select : " + selectWord);
+			// console.log("background.js select : " + selectWord);
 			ttsSpeak(selectWord);
 		} 
 	});
