@@ -373,11 +373,44 @@ $(document).ready(function() {
 
 	if (preference.get().RealtimeQuery) {
 		$('#queryword').keyup(onQuery);
-	} else {
-		$('#queryword').change(onQuery);
-	}
+	} 
 
 	$('#wordquery').click(onQuery);
+
+	$('#old_forget').click(forgetWord);
+	$('#new_adding').click(addingWord);
+
+	Mousetrap.bindGlobal('enter', function() {
+		onQuery();
+		return false;
+	});
+
+	Mousetrap.bindGlobal(['ctrl+s', 'command+s'], function() {
+		addingWord();
+		return false;
+	});
+	Mousetrap.bind(['s s', 's space'], function() {
+		addingWord();
+		return false;
+	});
+
+	Mousetrap.bindGlobal(['ctrl+f', 'command+f'], function() {
+		forgetWord();
+		return false;
+	});
+	Mousetrap.bind('f f', function() {
+		forgetWord();
+		return false;
+	});
+
+	Mousetrap.bindGlobal(['ctrl+p', 'command+p'], function() {
+		pronunceWord();
+		return false;
+	});
+	Mousetrap.bind(['p', 'space'], function() {
+		pronunceWord();
+		return false;
+	});
 
 	$('#old_review').click(reviewWord_shanbay);
 	$('#old_iciba_review').click(reviewWord_iciba);
@@ -386,12 +419,10 @@ $(document).ready(function() {
 	$('#old_etymology_review').click(reviewWord_etymology);
 	$('#old_shanbay_review').click(reviewWord_shanbay);
 
-	$('#old_forget').click(forgetWord);
-	$('#new_adding').click(addingWord);
-
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
 		var word = backgroundPage.selectWord;
-		$('#queryword').prop("placeholder", word);
+		// $('#queryword').prop("placeholder", word);
+		$('#queryword').val(word);
 
 		if (areChinese(word)) {
 			translateWord(word);
