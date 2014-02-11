@@ -22,7 +22,7 @@
   },
 
   "browser_action": {
-    "default_icon": "image/shellfish-darkslateblue-19.png",
+    "default_icon": "image/shellfish-darkblue-19.png",
     "default_title": "Shanbay Plugin",
     "default_popup": "popup.html"
   },
@@ -43,13 +43,8 @@
   ],
 
   "icons": {
-    "19": "shellfish-darkslateblue-19.png",
-    "32": "image/shellfish-darkslateblue-32.png",
-    "48": "image/shellfish-darkslateblue-48.png",
-    "64": "image/shellfish-darkslateblue-64.png",
-    "128": "image/shellfish-darkslateblue-128.png",
-    "256": "image/shellfish-darkslateblue-256.png",
-    "512": "image/shellfish-darkslateblue-512.png"
+    "19": "image/shellfish-darkblue-19.png",
+    "512": "image/shellfish-darkblue-512.png"
   },
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';"
