@@ -247,7 +247,7 @@ function translateWord(w)
 			}
 		},
 		error : function() {
-			//console.log("translateWord error");
+			// console.log("translateWord error");
 			M.translating = false;
 			M.error_msg = "查询失败，<br>可能 . . . ";
 			render();
@@ -262,34 +262,40 @@ var lastQueried = null;
 function onQuery() {
 	var queried = $('#queryword').val();
 
-	if (queried !== undefined && queried !== null) {
-		queried = queried.trim();
-		if (queried == lastQueried) {
-			return;
-		}
-		lastQueried = queried;
+	if (queried === undefined || queried === null) {
+		return;
+	}
+	queried = queried.trim();
+	if (queried.length == 0) {
+		return;
+	}
 
-		if (hasChinese(queried)) {
-			translateWord(queried);
-		} else if (areEnglish(queried)){
-			queryWord(queried);
+	if (queried == lastQueried) {
+		return;
+	}
+	lastQueried = queried;
+
+	if (hasChinese(queried)) {
+		translateWord(queried);
+	} else if (areEnglish(queried)){
+		queryWord(queried);
+	} else {
+		var candidate = getCandidate(queried, 120);
+		if (candidate.length == 1) {
+			queryWord(candidate[0][0]);
 		} else {
-			var candidate = getCandidate(queried, 120);
-			if (candidate.length == 1) {
-				queryWord(candidate[0][0]);
-			} else {
-				resetM();
-				M.candidate = candidate;
-				if (M.candidate.length == 0) {
-					M.error_msg = "匹配失败，没有相应的单词。 ";
-				}
-				render();
+			resetM();
+			M.candidate = candidate;
+			if (M.candidate.length == 0) {
+				M.error_msg = "匹配失败，没有相应的单词。 ";
 			}
+			render();
 		}
 	}
 }
 
 function onChoice() {
+	lastQueried = null;
 	queryWord($(this).prop("candidate"));
 }
 
