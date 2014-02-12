@@ -83,7 +83,6 @@ test( "getSimilarity", function() {
   var e1 = [
             "abloom",
             "blood",
-            "bloom",
             "blooms",
             "bloomy",
             "boom",
