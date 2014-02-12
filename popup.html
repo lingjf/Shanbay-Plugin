@@ -7,8 +7,10 @@
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
       body {
-        min-width: 280px;
         padding: 0;
+        min-width: 280px;
+        min-height: 64px;
+        background-image: url('image/mosaics.png');
       }
 
       #pp_search {
@@ -21,20 +23,15 @@
 
       #pp_heading {
         color: #333;
-        background-color: #f5f5f5;
-        border-color: #ddd;
-
-        padding: 6px 10px;
-        border-bottom: 1px solid transparent;
-        
+        padding: 6px 6px;
         margin-top: 1px;
+        border-bottom: 1px solid rgb(238, 238, 238);
         display: none;
       }
 
       #pp_body {
         color: #333;
-        padding: 6px 10px;
-
+        padding: 6px 6px;
         display: none;
       }
 
@@ -47,7 +44,6 @@
         font-size: 16px;
         font-weight: normal;
         line-height: 18px;
-
         margin-left: 8px;
       }
 
@@ -68,8 +64,8 @@
       }
 
       #error_msg {
-        display: none; 
         margin: 3px 0 0 0;
+        display: none; 
       }
 
     </style>    
@@ -81,6 +77,8 @@
   <script src="lib/mousetrap/plugins/global-bind/mousetrap-global-bind.min.js"></script>
   <script src="lib/preference.js"></script>
   <script src="lib/wordlist.js"></script>
+  <script src="lib/phrases.js"></script>
+  <script src="lib/levenshtein.js"></script>
   <script src="lib/literal.js"></script>
 	<script src="popup.js"></script>
 

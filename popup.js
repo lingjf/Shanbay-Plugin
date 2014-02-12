@@ -311,9 +311,9 @@ function render() {
 	$("#error_msg").hide();
 
 	if (M.translating || M.geting) {
-		$('#queryword').css("background", "url('image/inquire.gif') no-repeat right center");
+		$('#queryword').css("background", "rgb(252, 252, 252) url('image/inquire.gif') no-repeat right center");
 	} else {
-		$('#queryword').css("background", "");
+		$('#queryword').css("background", "rgb(252, 252, 252)");
 	}
 
 	if (M.candidate != null && M.candidate.length > 1) {

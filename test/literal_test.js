@@ -67,9 +67,41 @@ test( "wildCard2Regex", function() {
 
 test( "getCandidate", function() {
 
-	var e1 = [["abaca", ""], ["aback", ""], ["abacus", ""], ["abacuses", ""] ];
+	var e1 = [
+              ["abaca", ""],
+              ["aback", ""],
+              ["abacus", ""],
+              ["abacuses", ""] 
+           ];
 
 	var a1 = getCandidate('abac*', 0);
 	deepEqual(a1, e1, "Passed!" );
 });
+
+test( "getSimilarity", function() {
+
+  var e1 = [
+            "abloom",
+            "blood",
+            "bloom",
+            "blooms",
+            "bloomy",
+            "boom",
+            "broom",
+            "gloom",
+            "loom"
+          ];
+
+  var a1 = getSimilarity('bloom', 0);
+  deepEqual(a1, e1, "Passed!" );
+});
+
+test( "getSimilarity2", function() {
+
+  var e1 = [];
+
+  var a1 = getSimilarity('tremendous', 0);
+  deepEqual(a1, e1, "Passed!" );
+});
+
 
