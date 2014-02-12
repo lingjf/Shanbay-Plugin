@@ -19,67 +19,17 @@ function resetM() {
 		geting : false,
 		translating : false,
 		adding : false,
-		forgeting : false
+		forgeting : false,
+
+		review_options : false,
+		similarity : null
 	};
 }
 
-
-function loginShanbay() {
-	chrome.tabs.create({
-        url:"http://www.shanbay.com/accounts/login/"
-    })
+function gotoURL(url) {
+	chrome.tabs.create({url: url});
 }
 
-
-function reviewWord_shanbay() {
-	if (M.learning_id) { 
-		var url = "http://www.shanbay.com/review/learning/" + M.learning_id;
-		chrome.tabs.create({
-			url : url,
-			selected : true
-		});
-	}
-}
-
-function reviewWord_iciba() {
-	if (M.vocabulary) { 
-		var url = "http://www.iciba.com/" + M.vocabulary;
-		chrome.tabs.create({
-			url : url,
-			selected : true
-		});
-	}
-}
-
-function reviewWord_youdao() {
-	if (M.vocabulary) { 
-		var url = "http://dict.youdao.com/search?q=" + M.vocabulary;
-		chrome.tabs.create({
-			url : url,
-			selected : true
-		});
-	}
-}
-
-function reviewWord_vocabulary() {
-	if (M.vocabulary) { 
-		var url = "http://www.vocabulary.com/dictionary/" + M.vocabulary;
-		chrome.tabs.create({
-			url : url,
-			selected : true
-		});
-	}
-}
-
-function reviewWord_etymology() {
-	if (M.vocabulary) { 
-		var url = "http://www.etymonline.com/index.php?term=" + M.vocabulary;
-		chrome.tabs.create({
-			url : url,
-			selected : true
-		});
-	}
-}
 
 function forgetWord() {
 	if (M.learning_id) {
@@ -93,7 +43,7 @@ function forgetWord() {
 			contentType : "application/json; charset=utf-8",
 			data : '{"retention": 1}',
 			success : function(data) {
-				console.log(data);
+				// console.log(data);
 				if (data.status_code == 0 && data.msg == "SUCCESS") {
 					queryWord(M.vocabulary);
 				} else {
@@ -299,17 +249,7 @@ function onChoice() {
 	queryWord($(this).prop("candidate"));
 }
 
-function pronunceWord() {
-	if (M.audio) {
-		var sound = new Howl({urls: [M.audio] }).play();
-	}
-}
-
 function render() {
-	$('#pp_candidate, #pp_heading, #pp_body').hide();
-	$('#oldword, #newword').hide();
-	$("#error_msg").hide();
-
 	if (M.translating || M.geting) {
 		$('#queryword').css("background", "rgb(252, 252, 252) url('image/inquire.gif') no-repeat right center");
 	} else {
@@ -330,10 +270,10 @@ function render() {
 		$('#pp_candidate').hide();
 	}
 
-	if (M.vocabulary != null && M.vocabulary.length > 1) {
+	if (isValid(M.vocabulary)) {
 		$('#pp_heading, #pp_body').show();
 		$('#word').html(M.vocabulary);
-		$('#pronunciation').html("[" + M.pronunciation + "]").mouseenter(pronunceWord);
+		$('#pronunciation').html(M.pronunciation ? "[" + M.pronunciation + "]" : "");
 		$('#definition').html(M.definition.split('\n').join('<br>'));
 		if (M.learning_id != undefined && M.learning_id != null && M.learning_id != 0) { 
 			if (M.retention != null && M.target_retention != null) { 
@@ -341,37 +281,70 @@ function render() {
 				$('#target_retention').html(M.target_retention);
 				$('#current_retention').css("width", "" + M.percentage + "%");
 			}
-			$('#oldword').show();
+			$('#retention').show();
 		} else {
-			if (M.adding) {
-				$('#adding_waiting').html("<img src='image/inquire.gif'/>");
-			} else {
-				$('#adding_waiting').html("");
-			}
-			$('#newword').show();
-		}	
+			$('#retention').hide();
+		} 
 
-	} else if (M.word != null && M.word.length > 1) {
-		$('#pp_heading, #pp_body').show();
+		if (M.learning_id != undefined && M.learning_id != null && M.learning_id != 0) { 
+			$('#old_forget').show();
+			$('#new_adding').hide();
+		} else {
+			$('#new_adding').show();
+			$('#old_forget').hide();
+		}
+
+		if (M.adding || M.forgeting) {
+			$('#adding_forget_waiting').html("<img src='image/inquire.gif'/>");
+		} else {
+			$('#adding_forget_waiting').html("");
+		}
+
+	} else if (isValid(M.word)) {
+		$('#pp_heading').show();
+		$('#pp_body').hide();
 		
 		$('#word').html(M.word);
 		$('#pronunciation').html("");
-		$('#definition').html("");
+
+	} else {
+		$('#pp_heading, #pp_body').hide();
 	}
 
-	if (M.error_msg != null) {
+	if (M.review_options) {
+		$('#reviewoptions').show();
+		if (M.similarity) {
+			$('#similar_list').empty();
+			for (i in M.similarity) {
+				var c = $("<a href='#' class='list-group-item'>" + M.similarity[i] +"</a>");
+				$('#similar_list').append(c);
+			}
+			$('#similar_list').show();
+		} else {
+			$('#similar_list').empty();
+			$('#similar_list').hide();
+		}
+	} else {
+		$('#reviewoptions').hide();
+	}
+
+	if (isValid(M.error_msg)) {
 		$('#error_msg').html(M.error_msg).show();
 		if (M.login_shanbay) {
 			var c = $("<a href='#'>登录扇贝网</a>");
-			c.click(loginShanbay);
+			c.click(function(){gotoURL("http://www.shanbay.com/accounts/login/");});
 			$("#error_msg").append(c);
 		}
 	} else {
-		$('#error_msg').html("");
-		$('#error_msg').hide();
+		$('#error_msg').html("").hide();
 	}
 }
 
+function pronunceWord() {
+	if (M.audio) {
+		var sound = new Howl({urls: [M.audio] }).play();
+	}
+}
 
 $(document).ready(function() {
 	// document.execCommand('paste');
@@ -418,12 +391,41 @@ $(document).ready(function() {
 		return false;
 	});
 
-	$('#old_review').click(reviewWord_shanbay);
-	$('#old_iciba_review').click(reviewWord_iciba);
-	$('#old_youdao_review').click(reviewWord_youdao);
-	$('#old_vocabulary_review').click(reviewWord_vocabulary);
-	$('#old_etymology_review').click(reviewWord_etymology);
-	$('#old_shanbay_review').click(reviewWord_shanbay);
+	$('#old_review').click(function() {
+		if (M.learning_id) {
+			gotoURL("http://www.shanbay.com/review/learning/" + M.learning_id);
+		} else {
+			M.review_options = !M.review_options;
+			render();
+		}
+	});
+	$('#more_review').click(function() {
+		M.review_options = !M.review_options;
+		render();
+	});
+
+	$('#old_iciba_review').click(function() {
+		M.vocabulary && gotoURL("http://www.iciba.com/" + M.vocabulary);
+	});
+	$('#old_youdao_review').click(function() {
+		M.vocabulary && gotoURL("http://dict.youdao.com/search?q=" + M.vocabulary);
+	});
+	$('#old_vocabulary_review').click(function() {
+		M.vocabulary && gotoURL("http://www.vocabulary.com/dictionary/" + M.vocabulary);
+	});
+	$('#old_etymology_review').click(function() {
+		M.vocabulary && gotoURL("http://www.etymonline.com/index.php?term=" + M.vocabulary);
+	});
+	$('#old_shanbay_review').click(function() {
+		M.learning_id && gotoURL("http://www.shanbay.com/review/learning/" + M.learning_id);
+	});
+
+	$('#old_similar_review').click(function(){
+		M.similarity = getSimilarity(M.vocabulary || M.word);
+		render();
+	});
+
+	$('#pronunciation').mouseenter(pronunceWord);
 
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
 		var word = backgroundPage.selectWord;

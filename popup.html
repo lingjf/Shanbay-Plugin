@@ -103,32 +103,31 @@
     <div id="pp_body">
       <div id='definition'> </div>
       <p> </p>
-      <div id='oldword' style="display: none;">
-        <div id='retention' class="progress">
-          <div id='current_retention' class="progress-bar" role="progressbar" style="width: 3%;"> </div>
-          <span id='target_retention'> </span>
-        </div>
-
-        <div class="btn-group">
-          <button id="old_review" type="button" class="btn btn-info"> 查看 </button>
-          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <li><a id="old_iciba_review" href="#"> 金山词霸 </a></li>
-            <li><a id="old_youdao_review" href="#"> 有道词典 </a></li>
-            <li><a id="old_vocabulary_review" href="#"> Vocabulary.com </a></li>
-            <li><a id="old_etymology_review" href="#"> Etymonline.com </a></li>
-          </ul>
-        </div>
-
-        <button id="old_forget" type="button" class="btn btn-warning" style="margin-left: 30px;"> 我忘了 </button>
-        <span id="forgeting_waiting"></span> 
+      
+      <div id='retention' class="progress">
+        <div id='current_retention' class="progress-bar" role="progressbar" style="width: 3%;"> </div>
+        <span id='target_retention'> </span>
       </div>
-      <div id="newword" style="display: none;">
-        <button id="new_adding" type="button" class="btn btn-success"> 添加入库 </button>
-        <span id="adding_waiting"></span> 
+
+      <div id='wordreview' class="btn-group">
+        <button id="old_review" type="button" class="btn btn-info"> 查看 </button>
+        <button id="more_review" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+      </div>
+
+      <button id="old_forget" type="button" class="btn btn-warning" style="margin-left: 30px;"> 我忘了 </button>
+      <button id="new_adding" type="button" class="btn btn-success" style="margin-left: 30px;"> 添加入库 </button>
+      <span id="adding_forget_waiting"></span> 
+
+      <div id="reviewoptions" style="display:none;">
+          <a id="old_iciba_review" href="#"> 金山词霸 </a> 
+          <a id="old_youdao_review" href="#"> 有道词典 </a> 
+          <a id="old_vocabulary_review" href="#"> Vocabulary.com </a> 
+          <a id="old_etymology_review" href="#"> Etymonline.com </a> 
+          <a id="old_similar_review" href="#"> 形似单词 </a> 
+          <div id="similar_list" class="list-group" style="display:none;"> </div>
       </div>
 
     </div>
