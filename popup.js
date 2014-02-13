@@ -22,7 +22,12 @@ function resetM() {
 		forgeting : false,
 
 		review_options : false,
-		similarity : null
+		review_typed : null,
+		review_waiting : false,
+		refer_list : null,
+		derive_list : null,
+		synonym_list : null,
+		similar_list : null
 	};
 }
 
@@ -313,20 +318,88 @@ function render() {
 
 	if (M.review_options) {
 		$('#reviewoptions').show();
-		if (M.similarity) {
-			$('#similar_list').empty();
-			for (i in M.similarity) {
-				var c = $("<a href='#' class='list-group-item'>" + M.similarity[i] +"</a>");
-				$('#similar_list').append(c);
+
+		if (M.review_typed === "refer") {
+			$('#old_refer_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
+			if (M.refer_list && M.refer_list.length > 0) {
+				$('#reviewcontent').empty();
+				for (var i in M.refer_list) {
+					var c = $("<span style='margin-right: 9px;'>" + M.refer_list[i][0] + "：" + M.refer_list[i][1].join(" ") +"</span>");
+					$('#reviewcontent').append(c);
+				}
+			} else {
+				$('#reviewcontent').html(" 无 ");
 			}
-			$('#similar_list').show();
+			$('#reviewcontent').show();
 		} else {
-			$('#similar_list').empty();
-			$('#similar_list').hide();
+			$('#old_refer_review').css("border-bottom", "none");
 		}
+
+		if (M.review_typed === "synonym") {
+			$('#old_synonym_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
+			if (M.synonym_list && M.synonym_list.length > 0) {
+				$('#reviewcontent').empty();
+				for (var i in M.synonym_list) {
+					var p =$("<p>" + M.synonym_list[i][0] + "：</p>");
+					for (var j in M.synonym_list[i][1]) {
+						var c = $("<a href='#' style='margin-right: 9px'>" + M.synonym_list[i][1][j] +"</a>");
+						c.prop("candidate", M.synonym_list[i][1][j]).click(onChoice).appendTo(p);
+					}
+					$('#reviewcontent').append(p);
+				}
+			} else {
+				$('#reviewcontent').html(" 无 ");
+			}
+			$('#reviewcontent').show();
+		}  else {
+			$('#old_synonym_review').css("border-bottom", "none");
+		}
+
+		if (M.review_typed === "derive") {
+			$('#old_derive_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
+			if (M.derive_list && M.derive_list.length > 0) {
+				$('#reviewcontent').empty();
+				for (var i in M.derive_list) {
+					// $('#reviewcontent').append($(M.derive_list[i][0] + "："));
+					for (var j in M.derive_list[i][1]) {
+						var c = $("<a href='#' style='margin-right: 9px'>" + M.derive_list[i][1][j] +"</a>");
+						c.prop("candidate", M.derive_list[i][1][j]).click(onChoice);
+						$('#reviewcontent').append(c);
+					}
+				}
+			} else {
+				$('#reviewcontent').html(" 无 ");
+			}
+			$('#reviewcontent').show();
+		}  else {
+			$('#old_derive_review').css("border-bottom", "none");
+		}		
+
+		
+		if (M.review_typed === "similar") {
+			$('#old_similar_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
+			if (M.similar_list && M.similar_list.length > 0) {
+				$('#reviewcontent').empty();
+				for (var i in M.similar_list) {
+					var c = $("<a href='#' style='margin-right: 9px'>" + M.similar_list[i] +"</a>");
+					c.prop("candidate", M.similar_list[i]).click(onChoice);
+					$('#reviewcontent').append(c);
+				}
+			} else {
+				$('#reviewcontent').html(" 无 ");
+			}
+			$('#reviewcontent').show();
+		} else {
+			$('#old_similar_review').css("border-bottom", "none");
+		}
+
+		if (M.review_waiting) {
+			$('#reviewcontent').html("<img src='image/inquire.gif'/>");
+		} 
 	} else {
 		$('#reviewoptions').hide();
-	}
+		$('#reviewcontent').html("");
+	} 
 
 	if (isValid(M.error_msg)) {
 		$('#error_msg').html(M.error_msg).show();
@@ -420,8 +493,49 @@ $(document).ready(function() {
 		M.learning_id && gotoURL("http://www.shanbay.com/review/learning/" + M.learning_id);
 	});
 
+	$('#old_refer_review').click(function(){
+		M.review_typed = "refer";
+		if (M.refer_list == null) {
+			M.review_waiting = true;
+			getFromIciba(M.vocabulary || M.word, function(r, d) {
+				M.refer_list = r;
+				M.derive_list = d;
+				M.review_waiting = false;
+				render();
+			});
+		} 
+		render();
+	});	
+	$('#old_synonym_review').click(function(){
+		M.review_typed = "synonym";
+		if (M.synonym_list == null) {
+			M.review_waiting = true;
+			getFromYoudao(M.vocabulary || M.word, function(s) {
+				M.synonym_list = s;
+				M.review_waiting = false;
+				render();
+			});
+		} 
+		render();
+	});	
+	$('#old_derive_review').click(function(){
+		M.review_typed = "derive";
+		if (M.derive_list == null) {
+			M.review_waiting = true;
+			getFromIciba(M.vocabulary || M.word, function(r, d) {
+				M.refer_list = r;
+				M.derive_list = d;
+				M.review_waiting = false;
+				render();
+			});
+		} 
+		render();
+	});
 	$('#old_similar_review').click(function(){
-		M.similarity = getSimilarity(M.vocabulary || M.word);
+		M.review_typed = "similar";
+		if (M.similar_list == null) {
+			M.similar_list = getSimilarity(M.vocabulary || M.word);
+		}
 		render();
 	});
 
@@ -438,8 +552,10 @@ $(document).ready(function() {
 			queryWord(word);
 		}
 	});
-
 });
 
 $(window).unload(function() {
 });
+
+
+
