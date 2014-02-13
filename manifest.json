@@ -1,7 +1,7 @@
 {
   "name": "Shanbay Plugin",
-  "version": "1.5",
-  "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory",
+  "version": "1.6",
+  "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory. ",
   "manifest_version": 2,
 
   "permissions": [

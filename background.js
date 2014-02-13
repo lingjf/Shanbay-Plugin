@@ -4,7 +4,6 @@ var selectWord = null;
 
 function ttsSpeak(utterance) {	
   if (utterance !== undefined && utterance !== null && utterance.length > 0) {
-
     if (areEnglish(utterance) && preference.get().TtsSpeakOut) { 
       chrome.tts.speak(utterance, {'rate': 0.8});
     }
@@ -17,7 +16,6 @@ function loadContentScriptInAllTabs() {
     for (var i = 0; i < windows.length; i++) {
       var tabs = windows[i].tabs;
       for (var j = 0; j < tabs.length; j++) {
-
         chrome.tabs.executeScript(
           tabs[j].id,
           {file: 'content_script.js', allFrames: true}
@@ -37,7 +35,6 @@ function initBackground() {
 			ttsSpeak(selectWord);
 		} 
 	});
-
 }
 
 initBackground();

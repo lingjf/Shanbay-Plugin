@@ -37,9 +37,7 @@ function onSelected(e) {
 }
 
 function initContentScript() {
-
 	document.addEventListener('mouseup', onSelected, false);
-
 }
 
 initContentScript();

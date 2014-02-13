@@ -8,11 +8,6 @@ $(document).ready(function() {
 		preference.set({TtsSpeakOut: this.checked});
 	});
 
-	var RealtimeQuery = window.localStorage["RealtimeQuery"];
-	if (RealtimeQuery == undefined) {
-		RealtimeQuery = "false";
-	}
-
 	if (preference.get().RealtimeQuery) {
 		$("#RealtimeQuery").button("toggle");
 	}

@@ -1,249 +1,161 @@
 
-var M = {};
+var M = {
 
-function resetM() {
-	M = {
-		word : null,
-		candidate : null,
-		vocabulary : null,
-		pronunciation : null,
-		audio : null,
-		definition : null,
-		learning_id : null,
-		retention : null,
-		target_retention : null,
-		percentage : null,
-		error_msg : null,
-		login_shanbay : null,
+		reset: function() {
+			this.word = null;
+			this.candidate = null;
+			this.vocabulary = null;
+			this.pronunciation = null;
+			this.audio = null;
+			this.definition = null;
+			this.learning_id = null;
+			this.retention = null;
+			this.target_retention = null;
+			this.percentage = null;
+			this.errormsg = null;
+			this.notlogin = null;
 
-		geting : false,
-		translating : false,
-		adding : false,
-		forgeting : false,
+			this.geting = false;
+			this.translating = false;
+			this.adding = false;
+			this.forgeting = false;
 
-		review_options : false,
-		review_typed : null,
-		review_waiting : false,
-		refer_list : null,
-		derive_list : null,
-		synonym_list : null,
-		similar_list : null
+			this.review_options = false;
+			this.review_typed = null;
+			this.review_waiting = false;
+			this.refer_list = null;
+			this.derive_list = null;
+			this.synonym_list = null;
+			this.similar_list = null;
+		}, 
+
+		set: function(s) {
+			for (var i in s) {
+				this[i] = s[i];
+			}
+			render();
+		}
 	};
-}
 
 function gotoURL(url) {
 	chrome.tabs.create({url: url});
 }
 
 
-function forgetWord() {
-	if (M.learning_id) {
-		M.forgeting = true;
-		render(); 
-		var url = "http://www.shanbay.com/api/v1/bdc/learning/" + M.learning_id;
-		$.ajax({
-			url : url,
-			type : 'PUT',
-			dataType : 'JSON',
-			contentType : "application/json; charset=utf-8",
-			data : '{"retention": 1}',
-			success : function(data) {
-				// console.log(data);
-				if (data.status_code == 0 && data.msg == "SUCCESS") {
-					queryWord(M.vocabulary);
-				} else {
-					M.forgeting = false;
-					M.error_msg = "操作失败. " + data.msg;
-					render();
-				}
-			},
-			error : function() {
-				M.forgeting = false;
-				M.error_msg = "操作失败.";
-				render();
-			},
-			complete : function() {
-				
-			}
-		});
-	}
-}
-
-function addingWord() {
-	if (M.vocabulary) { 
-		M.adding = true;
-		render();
-		var url = "http://www.shanbay.com/api/learning/add/" + M.vocabulary;
-		$.ajax({
-			url : url,
-			type : 'GET',
-			dataType : 'JSON',
-			contentType : "application/json; charset=utf-8",
-			success : function(data) {
-				//console.log(data);
-				if (data['id']) {
-					queryWord(M.vocabulary);
-				} else {
-					M.adding = false;
-					M.error_msg = "添加失败.";
-					render();
-				}
-			},
-			error : function() {
-				M.adding = false;
-				M.error_msg = "添加失败，<br>可能没有";
-				M.login_shanbay = true;
-				render();
-			},
-			complete : function() {
-				
-			}
-		});
-	}
-}
-
-function getWord() {
-	M.geting = true;
-	render();
-	var go = M.word;
-	var url = "http://www.shanbay.com/api/v1/bdc/search/?word=" + M.word;
-	$.ajax({
-		url : url,
-		type : 'GET',
-		dataType : 'JSON',
-		contentType : "application/json; charset=utf-8",
-		success : function(data) {
-			// console.log(data);
-			if (go == M.word) {
-				if (data.status_code == 0 && data.msg == "SUCCESS") {
-
-					M.vocabulary = data.data.content;
-					M.pronunciation = data.data.pronunciation;
-					M.audio = data.data.audio;
-					M.definition = data.data.definition;
-					M.learning_id = data.data.learning_id;
-					M.retention = data.data.retention;
-					M.target_retention = data.data.target_retention;
-					var percentage = data.data.retention * 100.0 / data.data.target_retention;
-					if (percentage < 3.0) {
-						percentage = 3.0;
-					} else if (percentage > 100.0) {
-						percentage = 100.0;
-					}
-					M.percentage = percentage;
-				} else {
-					M.error_msg = data.msg;
-				}
-				M.geting = false;
-				render();
-			}
-		},
-		error : function() {
-			if (go == M.word) {
-				M.geting = false;
-				M.error_msg = "查询失败，<br>可能 . . . ";
-				render();
-			}
-		},
-		complete : function() {
-			// console.log("getWord complete");
-		}
-	});
-}
-
-
 function queryWord(w) {
-	resetM();
+	M.reset();
 	M.word = w;
 	if (isValid(M.word)) {
-		getWord();
+		M.geting = true;
+		getShanbayWord(M.word, function(result, value) {
+			if (result === "OK") {
+				M.vocabulary = value.content;
+				M.pronunciation = value.pronunciation;
+				M.audio = value.audio;
+				M.definition = value.definition;
+				M.learning_id = value.learning_id;
+				M.retention = value.retention || 0;
+				M.target_retention = value.target_retention || 5;
+				var percentage = M.retention * 100.0 / M.target_retention;
+				if (percentage < 3.0) {
+					percentage = 3.0;
+				} else if (percentage > 100.0) {
+					percentage = 100.0;
+				}
+				M.percentage = percentage;
+			} else {
+				M.errormsg = result;
+			}
+			M.geting = false;
+			render();
+		});
 	} else {
 		M.word = null;
 	}
 	render();
 }
 
-function translateWord(w)
-{
-	M.translating = true;
-	render();
-	var url = "http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{text}}";
-	$.ajax({
-		url : encodeURI(url.replace("{{text}}", w)),
-		type : 'GET',
-		success : function(data) {
-			// console.log(data);
-			var result = eval(data); // JSON.parse(data) does not work 
-			// console.log(result);
-			var matchs = [];
-			var candidate = [];
-			for (i in result[1]) {
-				for (j in result[1][i][1]) {
-					matchs.push(result[1][i][1][j]);
-				}
-				for (j in result[1][i][2]) {
-					var one = result[1][i][2][j][0];
-					var des = result[1][i][2][j][1].join("；") + ". " + result[1][i][0];
-					candidate.push([one, des]);
-				}
-			}
-			// console.log(matchs);
-			// console.log(candidate);
-			resetM();
-			M.translating = false;
-			if (candidate.length == 1) {
-				queryWord(candidate[0][0]);
+function onForget() {
+	if (M.learning_id) {
+		M.forgeting = true;
+		render();
+		forgetShanbayWord(M.learning_id, function(result){
+			M.forgeting = false;
+			if (result === "OK") {
+				queryWord(M.vocabulary);
 			} else {
-				M.candidate = candidate;
-				if (M.candidate.length == 0) {
-					M.error_msg = "翻译失败，没有对应的单词。 ";
-				}
+				M.errormsg = result;
 				render();
 			}
-		},
-		error : function() {
-			// console.log("translateWord error");
-			M.translating = false;
-			M.error_msg = "查询失败，<br>可能 . . . ";
-			render();
-		},
-		complete : function() {
-			// console.log("translateWord complete");
-		}
-	});
+		});
+	}
 }
+
+function onAdding() {
+	if (M.vocabulary) { 
+		M.adding = true;
+		render();
+		addShanbayWord(M.vocabulary, function(result, reason){
+			M.adding = false;
+			if (result === "OK") {
+				queryWord(M.vocabulary);
+			} else {
+				M.errormsg = result;
+				M.notlogin = reason == "notlogin";
+				render();
+			}
+		});
+	}
+}
+
 
 var lastQueried = null;
 function onQuery() {
 	var queried = $('#queryword').val();
-
 	if (queried === undefined || queried === null) {
 		return;
 	}
 	queried = queried.trim();
-	if (queried.length == 0) {
-		return;
-	}
-
 	if (queried == lastQueried) {
 		return;
 	}
 	lastQueried = queried;
 
+	M.reset();
+	if (queried.length == 0) {
+		render();
+		return;
+	}
+
 	if (hasChinese(queried)) {
-		translateWord(queried);
+		M.translating = true;
+		render();
+
+		getTranslate(queried, function(result, translate) {
+			M.translating = false;
+			if (result !== "OK") {
+				M.errormsg = result;
+				render();
+				return;
+			}
+			if (translate.length == 1) {
+				queryWord(translate[0][0]);
+				return;
+			} 
+			M.candidate = translate;
+			render();
+		});
 	} else if (areEnglish(queried)){
 		queryWord(queried);
 	} else {
 		var candidate = getCandidate(queried, 120);
-		if (candidate.length == 1) {
+		if (candidate.length == 0) {
+			M.errormsg = "匹配失败，没有相应的单词。";
+			render();
+		} else if (candidate.length == 1) {
 			queryWord(candidate[0][0]);
 		} else {
-			resetM();
 			M.candidate = candidate;
-			if (M.candidate.length == 0) {
-				M.error_msg = "匹配失败，没有相应的单词。 ";
-			}
 			render();
 		}
 	}
@@ -401,15 +313,15 @@ function render() {
 		$('#reviewcontent').html("");
 	} 
 
-	if (isValid(M.error_msg)) {
-		$('#error_msg').html(M.error_msg).show();
-		if (M.login_shanbay) {
+	if (isValid(M.errormsg)) {
+		$('#errormsg').html(M.errormsg).show();
+		if (M.notlogin) {
 			var c = $("<a href='#'>登录扇贝网</a>");
 			c.click(function(){gotoURL("http://www.shanbay.com/accounts/login/");});
-			$("#error_msg").append(c);
+			$("#errormsg").append(c);
 		}
 	} else {
-		$('#error_msg').html("").hide();
+		$('#errormsg').html("").hide();
 	}
 }
 
@@ -421,7 +333,7 @@ function pronunceWord() {
 
 $(document).ready(function() {
 	// document.execCommand('paste');
-	resetM();
+	M.reset();
 
 	if (preference.get().RealtimeQuery) {
 		$('#queryword').keyup(onQuery);
@@ -429,8 +341,8 @@ $(document).ready(function() {
 
 	$('#wordquery').click(onQuery);
 
-	$('#old_forget').click(forgetWord);
-	$('#new_adding').click(addingWord);
+	$('#old_forget').click(onForget);
+	$('#new_adding').click(onAdding);
 
 	Mousetrap.bindGlobal('enter', function() {
 		onQuery();
@@ -438,20 +350,20 @@ $(document).ready(function() {
 	});
 
 	Mousetrap.bindGlobal(['ctrl+s', 'command+s'], function() {
-		addingWord();
+		onAdding();
 		return false;
 	});
 	Mousetrap.bind(['s s', 's space'], function() {
-		addingWord();
+		onAdding();
 		return false;
 	});
 
 	Mousetrap.bindGlobal(['ctrl+f', 'command+f'], function() {
-		forgetWord();
+		onForget();
 		return false;
 	});
 	Mousetrap.bind('f f', function() {
-		forgetWord();
+		onForget();
 		return false;
 	});
 
@@ -545,12 +457,7 @@ $(document).ready(function() {
 		var word = backgroundPage.selectWord;
 		// $('#queryword').prop("placeholder", word);
 		$('#queryword').val(word);
-
-		if (areChinese(word)) {
-			translateWord(word);
-		} else {
-			queryWord(word);
-		}
+		onQuery();
 	});
 });
 
