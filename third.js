@@ -3,7 +3,7 @@
 function getShanbayWord(word, callback) 
 {
 	var url = "http://www.shanbay.com/api/v1/bdc/search/?word=" + word;
-	$.ajax({
+	jQuery.ajax({
 		url : url,
 		type : 'GET',
 		dataType : 'JSON',
@@ -28,7 +28,7 @@ function getShanbayWord(word, callback)
 function addShanbayWord(word, callback) 
 {
 	var url = "http://www.shanbay.com/api/learning/add/" + word;
-	$.ajax({
+	jQuery.ajax({
 		url : url,
 		type : 'GET',
 		dataType : 'JSON',
@@ -53,7 +53,7 @@ function addShanbayWord(word, callback)
 function forgetShanbayWord(learning_id, callback) 
 {
 	var url = "http://www.shanbay.com/api/v1/bdc/learning/" + learning_id;
-	$.ajax({
+	jQuery.ajax({
 		url : url,
 		type : 'PUT',
 		dataType : 'JSON',
@@ -93,17 +93,16 @@ function getTranslate(word, callback)
 		}
     	return translate;
     };
-	$.get(encodeURI(url.replace("{{text}}", word)), 
-		function(data){
-			var result = "OK";
-			var translate = parse(data);
-			if (translate.length === 0) {
-				result = "翻译失败，没有对应的单词。";
-			}
-			callback(result, translate);
-		}).fail(function(){
-			callback("查询失败，<br>可能 . . . ", []);
-		});
+	jQuery.get(encodeURI(url.replace("{{text}}", word)), function(data){
+		var result = "OK";
+		var translate = parse(data);
+		if (translate.length === 0) {
+			result = "翻译失败，没有对应的单词。";
+		}
+		callback(result, translate);
+	}).fail(function(){
+		callback("查询失败，<br>可能 . . . ", []);
+	});
 }
 
 function getFromIciba(word, callback)
@@ -170,10 +169,85 @@ function getFromYoudao(word, callback)
     	// console.log(SynonymList);
     	return SynonymList;
     };
-	$.get(url, function(data){
-			callback(parse(data));
-		}).fail(function(){
-			callback([]);
-		});
+	jQuery.get(url, function(data){
+		callback(parse(data));
+	}).fail(function(){
+		callback([]);
+	});
+}
+
+function commaNumber(n) 
+{
+	n = "" + n;
+	if (n > 999) {
+		var chunks = [];
+		for (var i = 0, l = Math.ceil(n.length / 3); i < l; i++) {
+			var end = n.length - (i * 3);
+			chunks[(l - 1) - i] = n.substring(Math.max(0, end - 3), end)
+		}
+		n = chunks.join(",")
+	}
+	return n
+}
+
+function normalizeFrequency(freq)
+{
+	if (freq == 0.0) {
+		return "∞";
+	}
+	return commaNumber(1 + parseInt(""+ (1 / (freq / 4000))));
+}
+
+function getFrequency(word, callback) 
+{
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4) {
+			if (xhr.status == 200) {
+				var frequence = null;
+				var family = [];
+				// http://stackoverflow.com/questions/4825312/using-jquery-to-select-custom-fbml-like-tags
+				var t0 = $(this.responseText.replace(/<img[^>]*>/g,"")).find('vcom\\:wordfamily');
+				t0.each(function() {
+					var t1 = $(this).attr('data'); // why prop() failed?
+			/*
+					var example = [ {
+						ffreq: 2.370358182506718, // word family freqency including self and all desendants but excluding parent
+						freq: 2.367312319622287, // word self freqency
+						hw: true, // 
+						parent: "addict", // direct parent string
+						size: 3, //
+						type: 1, // 
+						word: "addicted" // word self string
+					} ]
+			*/
+					try {
+						var v = eval(t1);
+						for (var i in v) {
+							var f = {
+								word : v[i].word,
+								ffreq : v[i].ffreq,
+								freq : v[i].freq,
+								fpages : normalizeFrequency(v[i].ffreq),
+								pages : normalizeFrequency(v[i].freq)
+							};
+							console.log(f);
+							if (v[i].word == word) {
+								frequence = f;
+							}
+							family.push(f);
+						}
+					} catch (e) {
+
+					}
+				});
+				callback("OK", frequence, family);
+			} else {
+				callback("NO");
+			}
+		}
+	};
+	xhr.open("GET", "http://www.vocabulary.com/dictionary/" + word, true);
+	xhr.send();
 }
 

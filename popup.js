@@ -1,41 +1,42 @@
 
 var M = {
+	reset: function() {
+		this.word = null;
+		this.candidate = null;
+		this.vocabulary = null;
+		this.pronunciation = null;
+		this.audio = null;
+		this.frequence = null;
+		this.definition = null;
+		this.learning_id = null;
+		this.retention = null;
+		this.target_retention = null;
+		this.percentage = null;
+		this.errormsg = null;
+		this.notlogin = null;
 
-		reset: function() {
-			this.word = null;
-			this.candidate = null;
-			this.vocabulary = null;
-			this.pronunciation = null;
-			this.audio = null;
-			this.definition = null;
-			this.learning_id = null;
-			this.retention = null;
-			this.target_retention = null;
-			this.percentage = null;
-			this.errormsg = null;
-			this.notlogin = null;
+		this.geting = false;
+		this.translating = false;
+		this.adding = false;
+		this.forgeting = false;
 
-			this.geting = false;
-			this.translating = false;
-			this.adding = false;
-			this.forgeting = false;
+		this.review_options = false;
+		this.review_typed = null;
+		this.review_waiting = false;
+		this.refer_list = null;
+		this.derive_list = null;
+		this.family_list = null;
+		this.synonym_list = null;
+		this.similar_list = null;
+	}, 
 
-			this.review_options = false;
-			this.review_typed = null;
-			this.review_waiting = false;
-			this.refer_list = null;
-			this.derive_list = null;
-			this.synonym_list = null;
-			this.similar_list = null;
-		}, 
-
-		set: function(s) {
-			for (var i in s) {
-				this[i] = s[i];
-			}
-			render();
+	set: function(s) {
+		for (var i in s) {
+			this[i] = s[i];
 		}
-	};
+		render();
+	}
+};
 
 function gotoURL(url) {
 	chrome.tabs.create({url: url});
@@ -66,6 +67,11 @@ function queryWord(w) {
 			} else {
 				M.errormsg = result;
 			}
+			getFrequency(M.vocabulary || M.word, function(result, frequence, family) {
+				M.frequence = frequence;
+				M.family_list = family;
+				render();
+			});
 			M.geting = false;
 			render();
 		});
@@ -191,6 +197,10 @@ function render() {
 		$('#pp_heading, #pp_body').show();
 		$('#word').html(M.vocabulary);
 		$('#pronunciation').html(M.pronunciation ? "[" + M.pronunciation + "]" : "");
+		if (M.frequence) {
+			$('#frequence').html(M.frequence.pages + "~" + M.frequence.fpages);
+		}
+
 		$('#definition').html(M.definition.split('\n').join('<br>'));
 		if (M.learning_id != undefined && M.learning_id != null && M.learning_id != 0) { 
 			if (M.retention != null && M.target_retention != null) { 
@@ -287,6 +297,24 @@ function render() {
 			$('#old_derive_review').css("border-bottom", "none");
 		}		
 
+		if (M.review_typed === "family") {
+			$('#old_family_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
+			if (M.family_list && M.family_list.length > 0) {
+				$('#reviewcontent').empty();
+				for (var i in M.family_list) {
+					var c = $("<a href='#' style='margin-right: 9px'>" + M.family_list[i].word + "</a>");
+					var d = $("<span>" + M.family_list[i].pages  +"~"+ M.family_list[i].fpages+ "</span><br/>");
+					c.prop("candidate", M.family_list[i].word).click(onChoice);
+					$('#reviewcontent').append(c);
+					$('#reviewcontent').append(d);
+				}
+			} else {
+				$('#reviewcontent').html(" 无 ");
+			}
+			$('#reviewcontent').show();
+		}  else {
+			$('#old_family_review').css("border-bottom", "none");
+		}		
 		
 		if (M.review_typed === "similar") {
 			$('#old_similar_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
@@ -443,6 +471,19 @@ $(document).ready(function() {
 		} 
 		render();
 	});
+	$('#old_family_review').click(function(){
+		M.review_typed = "family";
+		if (M.family_list == null) {
+			M.review_waiting = true;
+			getFrequency(M.vocabulary || M.word, function(result, frequence, family) {
+				M.frequence = frequence;
+				M.family_list = family;
+				M.review_waiting = false;
+				render();
+			});
+		} 
+		render();
+	});
 	$('#old_similar_review').click(function(){
 		M.review_typed = "similar";
 		if (M.similar_list == null) {
@@ -459,6 +500,7 @@ $(document).ready(function() {
 		$('#queryword').val(word);
 		onQuery();
 	});
+
 });
 
 $(window).unload(function() {
