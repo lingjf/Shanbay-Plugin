@@ -11,13 +11,13 @@ function getShanbayWord(word, callback)
 		success : function(data) {
 			// console.log(data);
 			if (data.status_code == 0 && data.msg == "SUCCESS") {
-				callback("OK", data.data);
+				callback(word, "OK", data.data);
 			} else {
-				callback(data.msg);
+				callback(word, data.msg);
 			}
 		},
 		error : function() {
-			callback("查询失败，<br>可能 . . . ");
+			callback(word, "查询失败，<br>可能 . . . ");
 		},
 		complete : function() {
 		}
@@ -99,9 +99,9 @@ function getTranslate(word, callback)
 		if (translate.length === 0) {
 			result = "翻译失败，没有对应的单词。";
 		}
-		callback(result, translate);
+		callback(word, result, translate);
 	}).fail(function(){
-		callback("查询失败，<br>可能 . . . ", []);
+		callback(word, "查询失败，<br>可能 . . . ", []);
 	});
 }
 

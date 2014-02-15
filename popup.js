@@ -43,12 +43,15 @@ function gotoURL(url) {
 }
 
 
-function queryWord(w) {
+function queryWord(word) {
 	M.reset();
-	M.word = w;
+	M.word = word;
 	if (isValid(M.word)) {
 		M.geting = true;
-		getShanbayWord(M.word, function(result, value) {
+		getShanbayWord(M.word, function(word, result, value) {
+			if (word != M.word) {
+				return;
+			}
 			if (result === "OK") {
 				M.vocabulary = value.content;
 				M.pronunciation = value.pronunciation;
@@ -64,14 +67,17 @@ function queryWord(w) {
 					percentage = 100.0;
 				}
 				M.percentage = percentage;
+
+				getFrequency(M.vocabulary, function(result, frequence, family) {
+					M.frequence = frequence;
+					M.family_list = family;
+					render();
+				});
+
 			} else {
 				M.errormsg = result;
 			}
-			getFrequency(M.vocabulary || M.word, function(result, frequence, family) {
-				M.frequence = frequence;
-				M.family_list = family;
-				render();
-			});
+			
 			M.geting = false;
 			render();
 		});
@@ -117,27 +123,29 @@ function onAdding() {
 
 var lastQueried = null;
 function onQuery() {
-	var queried = $('#queryword').val();
-	if (queried === undefined || queried === null) {
+	var text = $('#queryword').val();
+	if (text === undefined || text === null) {
 		return;
 	}
-	queried = queried.trim();
-	if (queried == lastQueried) {
+	text = text.trim();
+	if (text == lastQueried) {
 		return;
 	}
-	lastQueried = queried;
+	lastQueried = text;
 
 	M.reset();
-	if (queried.length == 0) {
+	if (text.length == 0) {
 		render();
 		return;
 	}
 
-	if (hasChinese(queried)) {
-		M.translating = true;
+	if (hasChinese(text)) {
+		M.translating = text;
 		render();
-
-		getTranslate(queried, function(result, translate) {
+		getTranslate(text, function(word, result, translate) {
+			if (word != M.translating) {
+				return;
+			}
 			M.translating = false;
 			if (result !== "OK") {
 				M.errormsg = result;
@@ -151,10 +159,10 @@ function onQuery() {
 			M.candidate = translate;
 			render();
 		});
-	} else if (areEnglish(queried)){
-		queryWord(queried);
+	} else if (areEnglish(text)){
+		queryWord(text);
 	} else {
-		var candidate = getCandidate(queried, 120);
+		var candidate = getCandidate(text, 120);
 		if (candidate.length == 0) {
 			M.errormsg = "匹配失败，没有相应的单词。";
 			render();
@@ -198,7 +206,7 @@ function render() {
 		$('#word').html(M.vocabulary);
 		$('#pronunciation').html(M.pronunciation ? "[" + M.pronunciation + "]" : "");
 		if (M.frequence) {
-			$('#frequence').html(M.frequence.pages + "~" + M.frequence.fpages);
+			$('#frequence').html(/*M.frequence.pages + "~" + */ M.frequence.fpages + "");
 		}
 
 		$('#definition').html(M.definition.split('\n').join('<br>'));
@@ -262,7 +270,7 @@ function render() {
 			if (M.synonym_list && M.synonym_list.length > 0) {
 				$('#reviewcontent').empty();
 				for (var i in M.synonym_list) {
-					var p =$("<p>" + M.synonym_list[i][0] + "：</p>");
+					var p =$("<p><span>" + M.synonym_list[i][0] + "：</span></p>");
 					for (var j in M.synonym_list[i][1]) {
 						var c = $("<a href='#' style='margin-right: 9px'>" + M.synonym_list[i][1][j] +"</a>");
 						c.prop("candidate", M.synonym_list[i][1][j]).click(onChoice).appendTo(p);
