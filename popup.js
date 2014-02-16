@@ -309,13 +309,9 @@ function render() {
 			$('#old_family_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
 			if (M.family_list && M.family_list.length > 0) {
 				$('#reviewcontent').empty();
-				for (var i in M.family_list) {
-					var c = $("<a href='#' style='margin-right: 9px'>" + M.family_list[i].word + "</a>");
-					var d = $("<span>" + M.family_list[i].pages  +"~"+ M.family_list[i].fpages+ "</span><br/>");
-					c.prop("candidate", M.family_list[i].word).click(onChoice);
-					$('#reviewcontent').append(c);
-					$('#reviewcontent').append(d);
-				}
+				//console.log(M.family_list);
+				//console.log(familyTree(M.family_list));
+				$('#reviewcontent').html(familyTree(M.family_list));
 			} else {
 				$('#reviewcontent').html(" 无 ");
 			}
@@ -508,11 +504,12 @@ $(document).ready(function() {
 		$('#queryword').val(word);
 		onQuery();
 	});
-
 });
 
 $(window).unload(function() {
 });
+
+
 
 
 

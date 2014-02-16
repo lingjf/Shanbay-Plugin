@@ -205,7 +205,8 @@ function getFrequency(word, callback)
 		if (xhr.readyState == 4) {
 			if (xhr.status == 200) {
 				var frequence = null;
-				var family = [];
+				var family = []
+
 				// http://stackoverflow.com/questions/4825312/using-jquery-to-select-custom-fbml-like-tags
 				var t0 = $(this.responseText.replace(/<img[^>]*>/g,"")).find('vcom\\:wordfamily');
 				t0.each(function() {
@@ -215,7 +216,7 @@ function getFrequency(word, callback)
 						ffreq: 2.370358182506718, // word family freqency including self and all desendants but excluding parent
 						freq: 2.367312319622287, // word self freqency
 						hw: true, // 
-						parent: "addict", // direct parent string
+						parent: "addict", // direct parent string, undefined if none
 						size: 3, //
 						type: 1, // 
 						word: "addicted" // word self string
@@ -226,17 +227,18 @@ function getFrequency(word, callback)
 						for (var i in v) {
 							var f = {
 								word : v[i].word,
+								parent : v[i].parent,
 								ffreq : v[i].ffreq,
 								freq : v[i].freq,
 								fpages : normalizeFrequency(v[i].ffreq),
 								pages : normalizeFrequency(v[i].freq)
 							};
-							console.log(f);
 							if (v[i].word == word) {
 								frequence = f;
 							}
 							family.push(f);
 						}
+						__nest(family);
 					} catch (e) {
 
 					}
@@ -250,4 +252,89 @@ function getFrequency(word, callback)
 	xhr.open("GET", "http://www.vocabulary.com/dictionary/" + word, true);
 	xhr.send();
 }
+
+function __nest(data) {	
+	function join(s, x) {
+		for (var i in s) {
+			if (x.parent == s[i].word) {
+				if (!s[i].children) {
+					s[i].children = [];
+				}
+				s[i].children.push(x);
+				return true;
+			}
+			if (s[i].children && join(s[i].children, x)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	var done = false;
+	while(!done) {
+		done = true;
+		for (var i in data) {
+			if (data[i].parent) {
+				done = false;
+				var x = data.splice(i, 1)[0];
+				join(data, x); // drop orphan
+				break;
+			}
+		}
+	}
+}
+
+function __pill(type) 
+{
+	var width = 16;
+	var height = 16;
+	var pill_style = "margin:0;padding:0;border:0;display:inline-block;";
+		pill_style+= "width:" + width + "px;";
+		pill_style+= "height:" + height + "px;";
+	var cell_style = "margin:0;padding:0;position:relative;";
+		cell_style+= "width:" + width/2 + "px;";
+		cell_style+= "height:" + height/2 + "px;";
+		cell_style+= "left:" + width/2 + "px;";
+
+	var cell1_style = cell_style + 	
+					  (type.indexOf('n') !== -1 ? "border-left:1px solid red;" : "") +
+					  (type.indexOf('e') !== -1 ? "border-bottom:1px solid red;" : "");
+	var cell2_style = cell_style + 	
+					  (type.indexOf('s') !== -1 ? "border-left:1px solid red;" : "");
+
+	var result =
+	"<div style='" + pill_style + "'>" + 
+			"<div style='" + cell1_style + "'>" + "</div>" + 
+			"<div style='" + cell2_style + "'>" + "</div>" +
+	"</div>";
+	return result;
+};
+
+function __tree(data, own_prefix, son_prefix) 
+{
+	var line_style = "margin:0;padding:0;height:16px;line-height:16px;";
+	var text_style = "display:inline-block;vertical-align:top;font-size:16px;line-height:16px;";
+	var result = "<div style='" + line_style + "'>" + own_prefix + "<span style='" + text_style +"'>"  + data.word + "</span></div>";
+
+	for (var i = 0; data.children && i < data.children.length; i++) {
+		var own, son;
+		if (i == data.children.length - 1) {
+			own = son_prefix + __pill("ne");
+			son = son_prefix + __pill("");
+		} else {
+			own = son_prefix + __pill("nse");
+			son = son_prefix + __pill("ns");
+		}
+		result += __tree(data.children[i], own, son);
+	}	
+	return result;
+}
+
+function familyTree(data) {
+	var result = "";
+	for (var i in data) {
+		result += "<div>" + __tree(data[i], "", "") + "</div>";
+	}
+	return result;
+}
+
 
