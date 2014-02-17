@@ -173,6 +173,19 @@ function onQuery() {
 			queryWord(candidate[0][0]);
 		} else {
 			M.candidate = candidate;
+			var t = [];
+			for (var i in M.candidate) {
+				t.push(M.candidate[i][0].trim());
+			}
+			getChineseFromGoogleTranslate(t, function(result, translate) {
+				if (result !== "OK") {
+					return;
+				}
+				for (var i in M.candidate) {
+					M.candidate[i][1] = translate[M.candidate[i][0]] || "";
+				}
+				render();
+			});
 			render();
 		}
 	}
@@ -486,15 +499,7 @@ $(document).ready(function() {
 	});
 	$('#old_family_review').click(function(){
 		M.review_typed = "family";
-		if (M.family_list == null) {
-			M.review_waiting = true;
-			getFrequency(M.vocabulary || M.word, function(target, result, frequence, family) {
-				M.frequence = frequence;
-				M.family_list = family;
-				M.review_waiting = false;
-				render();
-			});
-		} 
+		
 		render();
 	});
 	$('#old_similar_review').click(function(){
@@ -513,6 +518,7 @@ $(document).ready(function() {
 		$('#queryword').val(word);
 		onQuery();
 	});
+
 });
 
 $(window).unload(function() {

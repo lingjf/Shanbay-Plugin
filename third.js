@@ -75,6 +75,44 @@ function forgetShanbayWord(learning_id, callback)
 	});
 }
 
+function getChineseFromGoogleTranslate(words, callback)
+{
+	var url = "http://translate.google.cn/translate_a/t?client=t&sl=en&tl=zh-CN&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{text}}";
+
+	var parse = function(data) {
+		// console.log(data);
+		var result = eval(data); // JSON.parse(data) does not work 
+		// console.log(result);
+		var translate = {};
+		for (var i in result[0]) {
+			translate[result[0][i][1].trim()] = result[0][i][0].trim();
+		}
+		if (5 in result) {
+			for (var i in result[5]) {
+				if (2 in result[5][i]) {
+					var t = [];
+					for (var j in result[5][i][2]) {
+						t.push(result[5][i][2][j][0].trim());
+					}
+					translate[result[5][i][0].trim()] = t.join("; ");
+				}
+			}
+		}
+    	return translate;
+    };
+   
+	jQuery.get(encodeURI(url.replace("{{text}}", words.join('\n'))), function(data){
+		var result = "OK";
+		var translate = parse(data);
+		if (translate.length === 0) {
+			result = "NO";
+		}
+		callback(result, translate);
+	}).fail(function(){
+		callback("NO", {});
+	});
+}
+
 function getTranslate(word, callback)
 {
 	var url = "http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=en&sc=2&ie=UTF-8&oe=UTF-8&prev=btn&srcrom=1&ssel=6&tsel=3&q={{text}}";
@@ -313,7 +351,7 @@ function __tree(data, own_prefix, son_prefix)
 {
 	var width = 16;
 	var height = 16;
-	var line_style = "margin:0;padding:0;border:0;";
+	var line_style = "margin:0;padding:0;border:0;overflow:hidden;";
 		line_style+= "height:" + height + "px;";
 		line_style+= "line-height:" + height + "px;";
 	var text_style = "display:inline-block;vertical-align:top;";
