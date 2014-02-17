@@ -48,8 +48,8 @@ function queryWord(word) {
 	M.word = word;
 	if (isValid(M.word)) {
 		M.geting = true;
-		getShanbayWord(M.word, function(word, result, value) {
-			if (word != M.word) {
+		getShanbayWord(M.word, function(target, result, value) {
+			if (target != M.word) {
 				return;
 			}
 			if (result === "OK") {
@@ -68,7 +68,10 @@ function queryWord(word) {
 				}
 				M.percentage = percentage;
 
-				getFrequency(M.vocabulary, function(result, frequence, family) {
+				getFrequency(M.vocabulary, function(target, result, frequence, family) {
+					if (target != M.vocabulary) {
+						return;
+					}
 					M.frequence = frequence;
 					M.family_list = family;
 					render();
@@ -177,7 +180,7 @@ function onQuery() {
 
 function onChoice() {
 	lastQueried = null;
-	queryWord($(this).prop("candidate"));
+	queryWord($(this).prop("candidate") || $(this).attr("candidate"));
 }
 
 function render() {
@@ -190,7 +193,7 @@ function render() {
 	if (M.candidate != null && M.candidate.length > 1) {
 		$('#pp_candidate').empty();
 		for (i in M.candidate) {
-			var c = $("<a href='#' class='list-group-item'>" + M.candidate[i].join(" ") +"</a>");
+			var c = $("<div class='cc'>" + "<span class='c1'>"+ M.candidate[i][0] +"</span> <span class='c2'>"+ M.candidate[i][1] +"</span></div>");
 			c.prop("candidate", M.candidate[i][0]);
 			c.click(onChoice);
 			$('#pp_candidate').append(c);
@@ -241,6 +244,7 @@ function render() {
 		
 		$('#word').html(M.word);
 		$('#pronunciation').html("");
+		$('#frequence').html("");
 
 	} else {
 		$('#pp_heading, #pp_body').hide();
@@ -253,10 +257,15 @@ function render() {
 			$('#old_refer_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
 			if (M.refer_list && M.refer_list.length > 0) {
 				$('#reviewcontent').empty();
+				var c = "";
 				for (var i in M.refer_list) {
-					var c = $("<span style='margin-right: 9px;'>" + M.refer_list[i][0] + "：" + M.refer_list[i][1].join(" ") +"</span>");
-					$('#reviewcontent').append(c);
+					c += "<span>" + M.refer_list[i][0] + "：";
+					for (var j in M.refer_list[i][1]) {
+						c += "<a href='#' style='margin-left: 6px'>" + M.refer_list[i][1][j] +"</a>"
+					}
+					c += "</span><br/>";
 				}
+				$('#reviewcontent').html(c);
 			} else {
 				$('#reviewcontent').html(" 无 ");
 			}
@@ -270,7 +279,8 @@ function render() {
 			if (M.synonym_list && M.synonym_list.length > 0) {
 				$('#reviewcontent').empty();
 				for (var i in M.synonym_list) {
-					var p =$("<p><span>" + M.synonym_list[i][0] + "：</span></p>");
+					// http://stackoverflow.com/questions/18222409/specifying-a-preferred-line-break-point-in-html-text-in-a-responsive-design
+					var p =$("<span><span>" + M.synonym_list[i][0] + "：</span><wbr></span><br/>");
 					for (var j in M.synonym_list[i][1]) {
 						var c = $("<a href='#' style='margin-right: 9px'>" + M.synonym_list[i][1][j] +"</a>");
 						c.prop("candidate", M.synonym_list[i][1][j]).click(onChoice).appendTo(p);
@@ -309,9 +319,8 @@ function render() {
 			$('#old_family_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
 			if (M.family_list && M.family_list.length > 0) {
 				$('#reviewcontent').empty();
-				//console.log(M.family_list);
-				//console.log(familyTree(M.family_list));
 				$('#reviewcontent').html(familyTree(M.family_list));
+				$('#reviewcontent a.familyword').click(onChoice);
 			} else {
 				$('#reviewcontent').html(" 无 ");
 			}
@@ -479,7 +488,7 @@ $(document).ready(function() {
 		M.review_typed = "family";
 		if (M.family_list == null) {
 			M.review_waiting = true;
-			getFrequency(M.vocabulary || M.word, function(result, frequence, family) {
+			getFrequency(M.vocabulary || M.word, function(target, result, frequence, family) {
 				M.frequence = frequence;
 				M.family_list = family;
 				M.review_waiting = false;

@@ -82,7 +82,6 @@ function getTranslate(word, callback)
 	var parse = function(data) {
 		// console.log(data);
 		var result = eval(data); // JSON.parse(data) does not work 
-		// console.log(result);
 		var translate = [];
 		for (i in result[1]) {
 			for (j in result[1][i][2]) {
@@ -205,7 +204,7 @@ function getFrequency(word, callback)
 		if (xhr.readyState == 4) {
 			if (xhr.status == 200) {
 				var frequence = null;
-				var family = []
+				var family = [];
 
 				// http://stackoverflow.com/questions/4825312/using-jquery-to-select-custom-fbml-like-tags
 				var t0 = $(this.responseText.replace(/<img[^>]*>/g,"")).find('vcom\\:wordfamily');
@@ -223,29 +222,22 @@ function getFrequency(word, callback)
 					} ]
 			*/
 					try {
-						var v = eval(t1);
-						for (var i in v) {
-							var f = {
-								word : v[i].word,
-								parent : v[i].parent,
-								ffreq : v[i].ffreq,
-								freq : v[i].freq,
-								fpages : normalizeFrequency(v[i].ffreq),
-								pages : normalizeFrequency(v[i].freq)
-							};
-							if (v[i].word == word) {
-								frequence = f;
+						family = eval(t1);
+						for (var i in family) {
+							family[i].fpages = normalizeFrequency(family[i].ffreq);
+							family[i].pages = normalizeFrequency(family[i].freq);
+							if (family[i].word == word) {
+								frequence = family[i];
 							}
-							family.push(f);
 						}
 						__nest(family);
 					} catch (e) {
 
 					}
 				});
-				callback("OK", frequence, family);
+				callback(word, "OK", frequence, family);
 			} else {
-				callback("NO");
+				callback(word, "NO");
 			}
 		}
 	};
@@ -283,10 +275,18 @@ function __nest(data) {
 	}
 }
 
+function __entry(data)
+{
+	return "<a href='#' style='font-size:14px;margin-left:2px;text-decoration:none;' class='familyword' candidate='" + data.word + "'>" + data.word + "</a>" + 
+		   "<span style='font-size:12px;font-style:italic;color:gray;margin-left:4px;'>"  + data.fpages + "</span>";
+}
+
+
 function __pill(type) 
 {
 	var width = 16;
 	var height = 16;
+	var links = "1px solid gray";
 	var pill_style = "margin:0;padding:0;border:0;display:inline-block;";
 		pill_style+= "width:" + width + "px;";
 		pill_style+= "height:" + height + "px;";
@@ -296,10 +296,10 @@ function __pill(type)
 		cell_style+= "left:" + width/2 + "px;";
 
 	var cell1_style = cell_style + 	
-					  (type.indexOf('n') !== -1 ? "border-left:1px solid red;" : "") +
-					  (type.indexOf('e') !== -1 ? "border-bottom:1px solid red;" : "");
+					  (type.indexOf('n') !== -1 ? "border-left:" + links + ";" : "") +
+					  (type.indexOf('e') !== -1 ? "border-bottom:" + links + ";" : "");
 	var cell2_style = cell_style + 	
-					  (type.indexOf('s') !== -1 ? "border-left:1px solid red;" : "");
+					  (type.indexOf('s') !== -1 ? "border-left:" + links + ";" : "");
 
 	var result =
 	"<div style='" + pill_style + "'>" + 
@@ -311,9 +311,14 @@ function __pill(type)
 
 function __tree(data, own_prefix, son_prefix) 
 {
-	var line_style = "margin:0;padding:0;height:16px;line-height:16px;";
-	var text_style = "display:inline-block;vertical-align:top;font-size:16px;line-height:16px;";
-	var result = "<div style='" + line_style + "'>" + own_prefix + "<span style='" + text_style +"'>"  + data.word + "</span></div>";
+	var width = 16;
+	var height = 16;
+	var line_style = "margin:0;padding:0;border:0;";
+		line_style+= "height:" + height + "px;";
+		line_style+= "line-height:" + height + "px;";
+	var text_style = "display:inline-block;vertical-align:top;";
+		//text_style+= "line-height:" + height + "px;";
+	var result = "<div style='" + line_style + "'>" + own_prefix + "<span style='" + text_style +"'>"  + __entry(data) + "</span></div>";
 
 	for (var i = 0; data.children && i < data.children.length; i++) {
 		var own, son;
@@ -329,11 +334,13 @@ function __tree(data, own_prefix, son_prefix)
 	return result;
 }
 
-function familyTree(data) {
-	var result = "";
+function familyTree(data) 
+{
+	var result = "<div>";
 	for (var i in data) {
-		result += "<div>" + __tree(data[i], "", "") + "</div>";
+		result += __tree(data[i], "", "");
 	}
+	result += "</div>";
 	return result;
 }
 

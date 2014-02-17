@@ -1,6 +1,6 @@
 {
   "name": "Shanbay Plugin",
-  "version": "1.6",
+  "version": "1.7",
   "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory. ",
   "manifest_version": 2,
 
@@ -36,7 +36,6 @@
       "matches": [ "<all_urls>" ],
       "all_frames": true,
       "js": [
-      	"lib/jquery.js",
         "content_script.js"
       ]
     }
