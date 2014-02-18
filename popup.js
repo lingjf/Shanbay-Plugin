@@ -69,12 +69,11 @@ function queryWord(word) {
 				M.percentage = percentage;
 
 				getFrequency(M.vocabulary, function(target, result, frequence, family) {
-					if (target != M.vocabulary) {
-						return;
+					if (target == M.vocabulary && result === "OK") {
+						M.frequence = frequence;
+						M.family_list = family;
+						render();
 					}
-					M.frequence = frequence;
-					M.family_list = family;
-					render();
 				});
 
 			} else {
@@ -146,21 +145,20 @@ function onQuery() {
 		M.translating = text;
 		render();
 		getTranslate(text, function(word, result, translate) {
-			if (word != M.translating) {
-				return;
-			}
-			M.translating = false;
-			if (result !== "OK") {
-				M.errormsg = result;
+			if (word == M.translating) {
+				M.translating = false;
+				if (result !== "OK") {
+					M.errormsg = result;
+					render();
+					return;
+				}
+				if (translate.length == 1) {
+					queryWord(translate[0][0]);
+					return;
+				} 
+				M.candidate = translate;
 				render();
-				return;
 			}
-			if (translate.length == 1) {
-				queryWord(translate[0][0]);
-				return;
-			} 
-			M.candidate = translate;
-			render();
 		});
 	} else if (areEnglish(text)){
 		queryWord(text);
@@ -178,13 +176,15 @@ function onQuery() {
 				t.push(M.candidate[i][0].trim());
 			}
 			getChineseFromGoogleTranslate(t, function(result, translate) {
-				if (result !== "OK") {
-					return;
+				if (result === "OK") {
+					for (var i in M.candidate) {
+						var e = M.candidate[i][0];
+						if (translate[e]) {
+							M.candidate[i][1] = translate[e][1] ? translate[e][1].join("; ") : translate[e][0];
+						}
+					}
+					render();
 				}
-				for (var i in M.candidate) {
-					M.candidate[i][1] = translate[M.candidate[i][0]] || "";
-				}
-				render();
 			});
 			render();
 		}
@@ -272,7 +272,7 @@ function render() {
 				$('#reviewcontent').empty();
 				var c = "";
 				for (var i in M.refer_list) {
-					c += "<span>" + M.refer_list[i][0] + "：";
+					c += "<span style='color:gray'>" + M.refer_list[i][0] + "：";
 					for (var j in M.refer_list[i][1]) {
 						c += "<a href='#' style='margin-left: 6px'>" + M.refer_list[i][1][j] +"</a>"
 					}
@@ -293,7 +293,7 @@ function render() {
 				$('#reviewcontent').empty();
 				for (var i in M.synonym_list) {
 					// http://stackoverflow.com/questions/18222409/specifying-a-preferred-line-break-point-in-html-text-in-a-responsive-design
-					var p =$("<span><span>" + M.synonym_list[i][0] + "：</span><wbr></span><br/>");
+					var p =$("<div><span style='color:gray'>" + M.synonym_list[i][0] + "：</span><wbr></div>");
 					for (var j in M.synonym_list[i][1]) {
 						var c = $("<a href='#' style='margin-right: 9px'>" + M.synonym_list[i][1][j] +"</a>");
 						c.prop("candidate", M.synonym_list[i][1][j]).click(onChoice).appendTo(p);
@@ -347,9 +347,16 @@ function render() {
 			if (M.similar_list && M.similar_list.length > 0) {
 				$('#reviewcontent').empty();
 				for (var i in M.similar_list) {
-					var c = $("<a href='#' style='margin-right: 9px'>" + M.similar_list[i] +"</a>");
-					c.prop("candidate", M.similar_list[i]).click(onChoice);
-					$('#reviewcontent').append(c);
+					var p = $("<div class='similar'> </div>");
+					var c = $("<a href='#' class='s1'>" + M.similar_list[i][0] +"</a>");
+					c.prop("candidate", M.similar_list[i][0]).click(onChoice).appendTo(p);
+					if (M.similar_list[i][1]) {
+						$("<span class='s2'>" +M.similar_list[i][1]+ "</span>").appendTo(p);
+					}
+					if (M.similar_list[i][2]) {
+						$("<span class='s3'>" +M.similar_list[i][2]+ "</span>").appendTo(p);
+					}
+					$('#reviewcontent').append(p);
 				}
 			} else {
 				$('#reviewcontent').html(" 无 ");
@@ -499,13 +506,68 @@ $(document).ready(function() {
 	});
 	$('#old_family_review').click(function(){
 		M.review_typed = "family";
-		
+		if (M.family_list != null) {
+			function __travel(data, callback) {
+				if (data instanceof Array) {
+					for (var i in data) {
+						__travel(data[i], callback);
+					}
+					return;
+				}
+				callback(data);
+				for (var i = 0; data.children && i < data.children.length; i++) {
+					__travel(data.children[i], callback);
+				}
+			}
+			var t = [];
+			__travel(M.family_list, function(data){
+				t.push(data.word);
+			});
+			getChineseFromGoogleTranslate(t, function(result, translate) {
+				if (result == "OK") {
+					__travel(M.family_list, function(data) {
+						if (translate[data.word]) {
+							data.mean = translate[data.word][0];
+						}
+					});
+					render();
+				}
+			});
+		} 
 		render();
 	});
 	$('#old_similar_review').click(function(){
 		M.review_typed = "similar";
 		if (M.similar_list == null) {
-			M.similar_list = getSimilarity(M.vocabulary || M.word);
+			M.similar_list = getSimilarity(M.vocabulary || M.word, 50);
+			var t = [];
+			for (var i in M.similar_list) {
+				if (!M.similar_list[i][1]) {
+					getFrequency(M.similar_list[i][0], function(target, result, frequence, family) {
+						if (result === "OK") {
+							for (var j in M.similar_list) {
+								if (M.similar_list[j][0] == target) {
+									M.similar_list[j][1] = frequence.fpages;
+								}
+							}
+							render();
+						}
+					});
+				}
+				if (!M.similar_list[i][2]) {
+					t.push(M.similar_list[i][0]);
+				}
+			}
+			if (t.length > 0) {
+				getChineseFromGoogleTranslate(t, function(result, translate) {
+					if (result == "OK") {
+						for (var i in M.similar_list) {
+							M.similar_list[i][2] = translate[M.similar_list[i][0]][0];
+						}
+						render();
+					}
+				});
+			}
 		}
 		render();
 	});

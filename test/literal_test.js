@@ -81,25 +81,25 @@ test( "getCandidate", function() {
 test( "getSimilarity", function() {
 
   var e1 = [
-            "abloom",
-            "blood",
-            "blooms",
-            "bloomy",
-            "boom",
-            "broom",
-            "gloom",
-            "loom"
-          ];
+    ["abloom"],
+    ["blood"],
+    ["blooms"],
+    ["bloomy"],
+    ["boom"],
+    ["broom"],
+    ["gloom"],
+    ["loom"]
+  ];
 
-  var a1 = getSimilarity('bloom', 0);
+  var a1 = getSimilarity('bloom', 8);
   deepEqual(a1, e1, "Passed!" );
 });
 
 test( "getSimilarity2", function() {
 
-  var e1 = [];
+  var e1 = [["tremendously"]];
 
-  var a1 = getSimilarity('tremendous', 0);
+  var a1 = getSimilarity('tremendous', 100);
   deepEqual(a1, e1, "Passed!" );
 });
 

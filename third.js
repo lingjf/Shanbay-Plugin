@@ -85,7 +85,11 @@ function getChineseFromGoogleTranslate(words, callback)
 		// console.log(result);
 		var translate = {};
 		for (var i in result[0]) {
-			translate[result[0][i][1].trim()] = result[0][i][0].trim();
+			var e = result[0][i][1].trim();
+			if (!translate[e]) {
+				translate[e] = [];
+			}
+			translate[e][0] = result[0][i][0].trim();
 		}
 		if (5 in result) {
 			for (var i in result[5]) {
@@ -94,7 +98,11 @@ function getChineseFromGoogleTranslate(words, callback)
 					for (var j in result[5][i][2]) {
 						t.push(result[5][i][2][j][0].trim());
 					}
-					translate[result[5][i][0].trim()] = t.join("; ");
+					var e = result[5][i][0].trim();
+					if (!translate[e]) {
+						translate[e] = [];
+					}
+					translate[e][1] = t;
 				}
 			}
 		}
@@ -315,8 +323,12 @@ function __nest(data) {
 
 function __entry(data)
 {
-	return "<a href='#' style='font-size:14px;margin-left:2px;text-decoration:none;' class='familyword' candidate='" + data.word + "'>" + data.word + "</a>" + 
-		   "<span style='font-size:12px;font-style:italic;color:gray;margin-left:4px;'>"  + data.fpages + "</span>";
+	var result = "<a href='#' style='font-size:14px;margin-left:2px;text-decoration:none;' class='familyword' candidate='" + data.word + "'>" + data.word + "</a>";
+	 	result+= "<span style='font-size:12px;font-style:italic;color:gray;margin-left:4px;'>" + data.fpages + "</span>";
+	 	if (data.mean) {
+			result+= "<span style='font-size:12px;color:gray;margin-left:8px;'>" + data.mean + "</span>";
+		}
+	return result;	
 }
 
 
@@ -351,11 +363,10 @@ function __tree(data, own_prefix, son_prefix)
 {
 	var width = 16;
 	var height = 16;
-	var line_style = "margin:0;padding:0;border:0;overflow:hidden;";
+	var line_style = "margin:0;padding:0;border:0;white-space:nowrap;overflow:hidden;";
 		line_style+= "height:" + height + "px;";
 		line_style+= "line-height:" + height + "px;";
 	var text_style = "display:inline-block;vertical-align:top;";
-		//text_style+= "line-height:" + height + "px;";
 	var result = "<div style='" + line_style + "'>" + own_prefix + "<span style='" + text_style +"'>"  + __entry(data) + "</span></div>";
 
 	for (var i = 0; data.children && i < data.children.length; i++) {
