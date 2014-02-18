@@ -97,10 +97,27 @@ test( "getSimilarity", function() {
 
 test( "getSimilarity2", function() {
 
-  var e1 = [["tremendously"]];
+  var e1 = [];
 
   var a1 = getSimilarity('tremendous', 100);
   deepEqual(a1, e1, "Passed!" );
+});
+
+test( "isSentence_en", function() {
+  equal(isSentence("helloworld"), false, "Passed!");
+  equal(isSentence("hello'sworld"), false, "Passed!");
+
+  equal(isSentence("hello world"), true, "Passed!");
+  equal(isSentence("hello,world"), true, "Passed!");
+  equal(isSentence("hello:world"), true, "Passed!");
+  equal(isSentence("hello$world"), true, "Passed!");
+});
+
+test( "isSentence_cn", function() {
+  equal(isSentence("中 国"), true, "Passed!");
+  equal(isSentence("中,国"), true, "Passed!");
+  equal(isSentence("中，国"), true, "Passed!");
+  equal(isSentence("中。国"), true, "Passed!");
 });
 
 

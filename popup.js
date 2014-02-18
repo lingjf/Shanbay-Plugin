@@ -428,6 +428,11 @@ $(document).ready(function() {
 		return false;
 	});
 
+	Mousetrap.bindGlobal(['ctrl+i', 'command+i'], function() {
+		$('#queryword').focus();
+		return false;
+	});
+
 	Mousetrap.bindGlobal(['ctrl+p', 'command+p'], function() {
 		pronunceWord();
 		return false;
@@ -575,10 +580,20 @@ $(document).ready(function() {
 	$('#pronunciation').mouseenter(pronunceWord);
 
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
-		var word = backgroundPage.selectWord;
-		// $('#queryword').prop("placeholder", word);
-		$('#queryword').val(word);
-		onQuery();
+		var words = backgroundPage.selectWord;
+		// $('#queryword').prop("placeholder", words);
+		if (isSentence(words) && !isPhrase(words)) {
+			var candidate = [];
+			var wlst = splitSentence(words);
+			for (var i in wlst) {
+				candidate.push([wlst[i], ""]);
+			}
+			M.candidate = candidate;
+			render();
+		} else { 
+			$('#queryword').val(words);
+			onQuery();
+		}
 	});
 
 });

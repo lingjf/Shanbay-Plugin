@@ -27,6 +27,11 @@ function onSelected(e) {
 		return true;
 	}
 	var selected = getSelected();
+	
+	if (!selected || selected.length > 1000) {
+		return true;
+	}
+	
 	if (selected !== lastSelected) {
 		chrome.runtime.sendMessage({
 			'select' : selected
