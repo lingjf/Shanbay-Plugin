@@ -193,7 +193,11 @@ function onQuery() {
 
 function onChoice() {
 	lastQueried = null;
-	queryWord($(this).prop("candidate") || $(this).attr("candidate"));
+	var t = $(this).prop("candidate") || $(this).attr("candidate");
+	if (t) {
+		$('#queryword').val(t);
+		onQuery();
+	}
 }
 
 function render() {
@@ -582,6 +586,7 @@ $(document).ready(function() {
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
 		var words = backgroundPage.selectWord;
 		// $('#queryword').prop("placeholder", words);
+		$('#queryword').val(words);
 		if (isSentence(words) && !isPhrase(words)) {
 			var candidate = [];
 			var wlst = splitSentence(words);
@@ -590,8 +595,7 @@ $(document).ready(function() {
 			}
 			M.candidate = candidate;
 			render();
-		} else { 
-			$('#queryword').val(words);
+		} else {
 			onQuery();
 		}
 	});

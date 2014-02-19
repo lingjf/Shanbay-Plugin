@@ -28,9 +28,9 @@ function onSelected(e) {
 	}
 	var selected = getSelected();
 	
-	if (!selected || selected.length > 1000) {
-		return true;
-	}
+	// if (!selected || selected.length > 1000) {
+	// 	return true;
+	// }
 	
 	if (selected !== lastSelected) {
 		chrome.runtime.sendMessage({
@@ -43,6 +43,17 @@ function onSelected(e) {
 
 function initContentScript() {
 	document.addEventListener('mouseup', onSelected, false);
+	
+	window.addEventListener('load', function() {
+		var input = document.getElementsByTagName('INPUT');
+		for (var i = 0; i < input.length; i++) {
+			input[i].addEventListener('select', onSelected);
+		}
+		var textarea = document.getElementsByTagName('TEXTAREA');
+		for (var i = 0; i < textarea.length; i++) {
+			textarea[i].addEventListener('select', onSelected);
+		}
+	});
 }
 
 initContentScript();

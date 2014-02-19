@@ -17,6 +17,11 @@ test( "isChinese", function() {
   equal(isChinese("の"), false, "Passed!");
 });
 
+test( "isChinese", function() {
+  equal(isChinese("，"), false, "Passed!");
+  equal(isChinese("。"), false, "Passed!");
+});
+
 test( "areChinese", function() {
   equal(areChinese("中"), true, "Passed!");
   equal(areChinese("中国"), true, "Passed!");
