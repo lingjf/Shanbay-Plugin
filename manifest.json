@@ -1,6 +1,6 @@
 {
   "name": "Shanbay Plugin",
-  "version": "1.8",
+  "version": "1.9",
   "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory. ",
   "manifest_version": 2,
 
@@ -40,16 +40,7 @@
     }
   ],
 
-  "commands": {
-    "_execute_browser_action": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+P",
-        "windows": "Ctrl+Shift+P",
-        "mac": "Command+Shift+P",
-        "linux": "Ctrl+Shift+P"
-      }
-    }
-  },
+
 
   "icons": {
     "19": "image/shellfish-darkblue-19.png",
