@@ -1,0 +1,10 @@
+﻿{
+    "application_title": {
+        "message": "扇贝插件", 
+        "description": "Shanbay Plugin"
+    }, 
+    "left": {
+        "message": "左侧", 
+        "description": "Left"
+    }
+}

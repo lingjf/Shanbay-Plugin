@@ -586,18 +586,25 @@ $(document).ready(function() {
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
 		var words = backgroundPage.selectWord;
 		// $('#queryword').prop("placeholder", words);
-		$('#queryword').val(words);
-		if (isSentence(words) && !isPhrase(words)) {
-			var candidate = [];
-			var wlst = splitSentence(words);
-			for (var i in wlst) {
-				candidate.push([wlst[i], ""]);
+		
+		if (words && words.length > 0) {
+			$('#queryword').blur();
+			$('#queryword').val(words);
+			if (isSentence(words) && !isPhrase(words)) {
+				var candidate = [];
+				var l = splitSentence(words);
+				for (var i in l) {
+					candidate.push([l[i], ""]);
+				}
+				M.candidate = candidate;
+				render();
+			} else {
+				onQuery();
 			}
-			M.candidate = candidate;
-			render();
 		} else {
-			onQuery();
+			$('#queryword').focus();
 		}
+		
 	});
 
 });

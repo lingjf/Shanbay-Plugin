@@ -1,0 +1,10 @@
+﻿{
+    "application_title": {
+        "message": "Shanbay Plugin", 
+        "description": "Shanbay Plugin"
+    }, 
+    "left": {
+        "message": "Left", 
+        "description": "Left"
+    }
+}

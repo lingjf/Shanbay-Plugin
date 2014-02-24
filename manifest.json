@@ -1,8 +1,9 @@
 {
-  "name": "Shanbay Plugin",
-  "version": "1.9",
+  "name": "__MSG_application_title__",
+  "version": "1.10",
   "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory. ",
   "manifest_version": 2,
+  "default_locale": "en",
 
   "permissions": [
     "<all_urls>",
@@ -39,8 +40,6 @@
       "run_at": "document_start"
     }
   ],
-
-
 
   "icons": {
     "19": "image/shellfish-darkblue-19.png",
