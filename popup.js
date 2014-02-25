@@ -171,18 +171,11 @@ function onQuery() {
 			queryWord(candidate[0][0]);
 		} else {
 			M.candidate = candidate;
-			var t = [];
-			for (var i in M.candidate) {
-				t.push(M.candidate[i][0].trim());
-			}
-			getChineseFromGoogleTranslate(t, function(result, translate) {
+			getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
 				if (result === "OK") {
-					for (var i in M.candidate) {
-						var e = M.candidate[i][0];
-						if (translate[e]) {
-							M.candidate[i][1] = translate[e][1] ? translate[e][1].join("; ") : translate[e][0];
-						}
-					}
+					M.candidate.forEach(function(d){
+						if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
+					})
 					render();
 				}
 			});
@@ -209,12 +202,10 @@ function render() {
 
 	if (M.candidate != null && M.candidate.length > 1) {
 		$('#pp_candidate').empty();
-		for (i in M.candidate) {
-			var c = $("<div class='cc'>" + "<span class='c1'>"+ M.candidate[i][0] +"</span> <span class='c2'>"+ M.candidate[i][1] +"</span></div>");
-			c.prop("candidate", M.candidate[i][0]);
-			c.click(onChoice);
-			$('#pp_candidate').append(c);
-		}
+		M.candidate.forEach(function(d){
+			var c = "<div class='cc'>" + "<span class='c1'>"+ d[0] + "</span> <span class='c2'>" + d[1] + "</span></div>";
+			$(c).prop("candidate", d[0]).click(onChoice).appendTo($('#pp_candidate'));
+		});
 		$('#pp_candidate').show();
 	} else {
 		$('#pp_candidate').empty();
@@ -274,15 +265,10 @@ function render() {
 			$('#old_refer_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
 			if (M.refer_list && M.refer_list.length > 0) {
 				$('#reviewcontent').empty();
-				var c = "";
-				for (var i in M.refer_list) {
-					c += "<span style='color:gray'>" + M.refer_list[i][0] + "：";
-					for (var j in M.refer_list[i][1]) {
-						c += "<a href='#' style='margin-left: 6px'>" + M.refer_list[i][1][j] +"</a>"
-					}
-					c += "</span><br/>";
-				}
-				$('#reviewcontent').html(c);
+				var t = M.refer_list.reduce(function(p, c){
+					return p + "<div class='refer'>" + c[0] + "：" + c[1].reduce(function(p, c){return p + "<a href='#'>" + c +"</a>";}, "") + "</div>";
+				}, "");
+				$('#reviewcontent').html(t);
 			} else {
 				$('#reviewcontent').html(" 无 ");
 			}
@@ -295,15 +281,15 @@ function render() {
 			$('#old_synonym_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
 			if (M.synonym_list && M.synonym_list.length > 0) {
 				$('#reviewcontent').empty();
-				for (var i in M.synonym_list) {
+				M.synonym_list.forEach(function(c){
 					// http://stackoverflow.com/questions/18222409/specifying-a-preferred-line-break-point-in-html-text-in-a-responsive-design
-					var p =$("<div><span style='color:gray'>" + M.synonym_list[i][0] + "：</span><wbr></div>");
-					for (var j in M.synonym_list[i][1]) {
-						var c = $("<a href='#' style='margin-right: 9px'>" + M.synonym_list[i][1][j] +"</a>");
-						c.prop("candidate", M.synonym_list[i][1][j]).click(onChoice).appendTo(p);
-					}
+					var p =$("<div class='synonym'>" + c[0] + "：<wbr></div>");
+					c[1].forEach(function(d){
+						var t = "<a href='#'>" + d +"</a>";
+						$(t).prop("candidate", d).click(onChoice).appendTo(p);
+					});
 					$('#reviewcontent').append(p);
-				}
+				});
 			} else {
 				$('#reviewcontent').html(" 无 ");
 			}
@@ -311,26 +297,6 @@ function render() {
 		}  else {
 			$('#old_synonym_review').css("border-bottom", "none");
 		}
-
-		if (M.review_typed === "derive") {
-			$('#old_derive_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
-			if (M.derive_list && M.derive_list.length > 0) {
-				$('#reviewcontent').empty();
-				for (var i in M.derive_list) {
-					// $('#reviewcontent').append($(M.derive_list[i][0] + "："));
-					for (var j in M.derive_list[i][1]) {
-						var c = $("<a href='#' style='margin-right: 9px'>" + M.derive_list[i][1][j] +"</a>");
-						c.prop("candidate", M.derive_list[i][1][j]).click(onChoice);
-						$('#reviewcontent').append(c);
-					}
-				}
-			} else {
-				$('#reviewcontent').html(" 无 ");
-			}
-			$('#reviewcontent').show();
-		}  else {
-			$('#old_derive_review').css("border-bottom", "none");
-		}		
 
 		if (M.review_typed === "family") {
 			$('#old_family_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
@@ -350,18 +316,13 @@ function render() {
 			$('#old_similar_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
 			if (M.similar_list && M.similar_list.length > 0) {
 				$('#reviewcontent').empty();
-				for (var i in M.similar_list) {
+				M.similar_list.forEach(function(d){
 					var p = $("<div class='similar'> </div>");
-					var c = $("<a href='#' class='s1'>" + M.similar_list[i][0] +"</a>");
-					c.prop("candidate", M.similar_list[i][0]).click(onChoice).appendTo(p);
-					if (M.similar_list[i][1]) {
-						$("<span class='s2'>" +M.similar_list[i][1]+ "</span>").appendTo(p);
-					}
-					if (M.similar_list[i][2]) {
-						$("<span class='s3'>" +M.similar_list[i][2]+ "</span>").appendTo(p);
-					}
+					$("<a href='#' class='s1'>" + d[0] +"</a>").prop("candidate", d[0]).click(onChoice).appendTo(p);
+					d[1] && $("<span class='s2'>" + d[1] + "</span>").appendTo(p);
+					d[2] && $("<span class='s3'>" + d[2] + "</span>").appendTo(p);
 					$('#reviewcontent').append(p);
-				}
+				});
 			} else {
 				$('#reviewcontent').html(" 无 ");
 			}
@@ -381,9 +342,8 @@ function render() {
 	if (isValid(M.errormsg)) {
 		$('#errormsg').html(M.errormsg).show();
 		if (M.notlogin) {
-			var c = $("<a href='#'>登录扇贝网</a>");
-			c.click(function(){gotoURL("http://www.shanbay.com/accounts/login/");});
-			$("#errormsg").append(c);
+			var t = "<a href='#'>登录扇贝网</a>";
+			$(t).click(function(){gotoURL("http://www.shanbay.com/accounts/login/");}).appendTo($("#errormsg"));
 		}
 	} else {
 		$('#errormsg').html("").hide();
@@ -488,6 +448,7 @@ $(document).ready(function() {
 		} 
 		render();
 	});	
+
 	$('#old_synonym_review').click(function(){
 		M.review_typed = "synonym";
 		if (M.synonym_list == null) {
@@ -500,19 +461,7 @@ $(document).ready(function() {
 		} 
 		render();
 	});	
-	$('#old_derive_review').click(function(){
-		M.review_typed = "derive";
-		if (M.derive_list == null) {
-			M.review_waiting = true;
-			getFromIciba(M.vocabulary || M.word, function(r, d) {
-				M.refer_list = r;
-				M.derive_list = d;
-				M.review_waiting = false;
-				render();
-			});
-		} 
-		render();
-	});
+
 	$('#old_family_review').click(function(){
 		M.review_typed = "family";
 		if (M.family_list != null) {
@@ -545,34 +494,30 @@ $(document).ready(function() {
 		} 
 		render();
 	});
+
 	$('#old_similar_review').click(function(){
 		M.review_typed = "similar";
 		if (M.similar_list == null) {
 			M.similar_list = getSimilarity(M.vocabulary || M.word, 50);
-			var t = [];
-			for (var i in M.similar_list) {
+			for (var i = 0; i < M.similar_list.length; i++) {
 				if (!M.similar_list[i][1]) {
 					getFrequency(M.similar_list[i][0], function(target, result, frequence, family) {
 						if (result === "OK") {
-							for (var j in M.similar_list) {
-								if (M.similar_list[j][0] == target) {
-									M.similar_list[j][1] = frequence.fpages;
-								}
-							}
+							M.similar_list.forEach(function(d){
+								if (d[0] == target) d[1] = frequence.fpages;
+							});
 							render();
 						}
 					});
 				}
-				if (!M.similar_list[i][2]) {
-					t.push(M.similar_list[i][0]);
-				}
 			}
+			var t = M.similar_list.filter(function(d){return !d[2];}).map(function(x){return x[0];});
 			if (t.length > 0) {
 				getChineseFromGoogleTranslate(t, function(result, translate) {
 					if (result == "OK") {
-						for (var i in M.similar_list) {
-							M.similar_list[i][2] = translate[M.similar_list[i][0]][0];
-						}
+						M.similar_list.forEach(function(d){
+							if (translate[d[0]]) d[2] = translate[d[0]][0];
+						});
 						render();
 					}
 				});
@@ -591,12 +536,7 @@ $(document).ready(function() {
 			$('#queryword').blur();
 			$('#queryword').val(words);
 			if (isSentence(words) && !isPhrase(words)) {
-				var candidate = [];
-				var l = splitSentence(words);
-				for (var i in l) {
-					candidate.push([l[i], ""]);
-				}
-				M.candidate = candidate;
+				M.candidate = splitSentence(words).map(function(d){return [d,""];});
 				render();
 			} else {
 				onQuery();

@@ -42,7 +42,7 @@ function addShanbayWord(word, callback)
 			}
 		},
 		error : function() {
-			callback("添加失败，<br>可能没有", "nologin");
+			callback("添加失败，<br>可能没有", "notlogin");
 		},
 		complete : function() {
 		}
@@ -269,7 +269,7 @@ function getFrequency(word, callback)
 			*/
 					try {
 						family = eval(t1);
-						for (var i in family) {
+						for (var i = 0; family && i < family.length; i++) {
 							family[i].fpages = normalizeFrequency(family[i].ffreq);
 							family[i].pages = normalizeFrequency(family[i].freq);
 							if (family[i].word == word) {
@@ -293,7 +293,7 @@ function getFrequency(word, callback)
 
 function __nest(data) {	
 	function join(s, x) {
-		for (var i in s) {
+		for (var i = 0; i < s.length; i++) {
 			if (x.parent == s[i].word) {
 				if (!s[i].children) {
 					s[i].children = [];
@@ -310,7 +310,7 @@ function __nest(data) {
 	var done = false;
 	while(!done) {
 		done = true;
-		for (var i in data) {
+		for (var i = 0; i < data.length; i++) {
 			if (data[i].parent) {
 				done = false;
 				var x = data.splice(i, 1)[0];
@@ -386,7 +386,7 @@ function __tree(data, own_prefix, son_prefix)
 function familyTree(data) 
 {
 	var result = "<div>";
-	for (var i in data) {
+	for (var i = 0; data && i < data.length; i++) {
 		result += __tree(data[i], "", "");
 	}
 	result += "</div>";
