@@ -2,7 +2,7 @@
 var preference = {
 	defaults : {
 		TtsSpeakOut : true,
-		RealtimeQuery : true
+		IncrementalQuery : true
 	},
 
 	get : function() {
@@ -10,7 +10,13 @@ var preference = {
 			window.localStorage.preference = JSON.stringify(this.defaults);
 		}
 
-		return JSON.parse(window.localStorage.preference);
+		var t = JSON.parse(window.localStorage.preference);
+		for (i in this.defaults) {
+			if (i in t) {} else {
+				t[i] = defaults[i];
+			}
+		}
+		return t;
 	},
 
 	set : function(got) {

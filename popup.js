@@ -360,7 +360,7 @@ $(document).ready(function() {
 	// document.execCommand('paste');
 	M.reset();
 
-	if (preference.get().RealtimeQuery) {
+	if (preference.get().IncrementalQuery) {
 		$('#queryword').keyup(onQuery);
 	} 
 

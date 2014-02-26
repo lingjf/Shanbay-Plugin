@@ -8,11 +8,11 @@ $(document).ready(function() {
 		preference.set({TtsSpeakOut: this.checked});
 	});
 
-	if (preference.get().RealtimeQuery) {
-		$("#RealtimeQuery").button("toggle");
+	if (preference.get().IncrementalQuery) {
+		$("#IncrementalQuery").button("toggle");
 	}
 
-	$("#RealtimeQuery input").change(function() {
-		preference.set({RealtimeQuery: this.checked});
+	$("#IncrementalQuery input").change(function() {
+		preference.set({IncrementalQuery: this.checked});
 	});
 });
