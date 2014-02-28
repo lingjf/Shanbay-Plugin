@@ -13,7 +13,7 @@ var preference = {
 		var t = JSON.parse(window.localStorage.preference);
 		for (i in this.defaults) {
 			if (i in t) {} else {
-				t[i] = defaults[i];
+				t[i] = this.defaults[i];
 			}
 		}
 		return t;
