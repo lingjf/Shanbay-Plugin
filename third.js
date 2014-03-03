@@ -158,14 +158,23 @@ function getFromIciba(word, callback)
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 ) {
         	if(xhr.status == 200) {
-				var ReferType = ["复数", "过去式", "过去分词", "现在分词", "第三人称单数", "比较级", "最高级"];
+				var ReferType = ["音节划分", "复数", "过去式", "过去分词", "现在分词", "第三人称单数", "比较级", "最高级"];
 	        	var ReferList = []; 
-	        	var DeriveType = ["派生词"];
-	        	var DeriveList = [];
-	        	var t0 = $(xhr.responseText.replace(/<img[^>]*>/g,"")).find('.group_prons .group_inf');
-	        	t0.each(function(index) {    		
-	    			var t1 = $(this).find('ul li');
-	    			t1.each(function(j) {
+	        	var t0 = $(xhr.responseText.replace(/<img[^>]*>/g,""));
+	        	var t1 = t0.find('#emphasize_ec_word .tips_content');
+	        	t1.each(function(index){
+						var v = this.innerText.trim().split('：');
+	    				var d = v[0].trim();
+	    				var c = v[1] ? v[1].trim() : null;
+	    				
+	    				if (ReferType.indexOf(d) !== -1 && c && c.length > 0) {
+							ReferList.push([d, [c]]);
+	    				}
+	        	});
+	        	var t2 = t0.find('.group_prons .group_inf');
+	        	t2.each(function(index) {    		
+	    			var t3 = $(this).find('ul li');
+	    			t3.each(function(j) {
 	    				var v = this.innerText.trim().split('：');
 	    				var d = v[0].trim();
 	    				var c = v[1] ? v[1].trim().split(' ') : null;
@@ -177,15 +186,12 @@ function getFromIciba(word, callback)
 	    				if (ReferType.indexOf(d) !== -1 && c && c.length > 0) {
 							ReferList.push([d, c]);
 	    				}
-	    				if (DeriveType.indexOf(d) !== -1 && c && c.length > 0) {
-							DeriveList.push([d, c]);
-	    				}
 	    			});
 	        	});
 	        	// console.log(ReferList);
-	            callback(ReferList, DeriveList);
+	            callback(ReferList);
         	} else {
-        		callback([], []);
+        		callback([]);
         	}
         } 
     }

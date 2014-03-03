@@ -24,7 +24,6 @@ var M = {
 		this.review_typed = null;
 		this.review_waiting = false;
 		this.refer_list = null;
-		this.derive_list = null;
 		this.family_list = null;
 		this.synonym_list = null;
 		this.similar_list = null;
@@ -318,9 +317,10 @@ function render() {
 				$('#reviewcontent').empty();
 				M.similar_list.forEach(function(d){
 					var p = $("<div class='similar'> </div>");
-					$("<a href='#' class='s1'>" + d[0] +"</a>").prop("candidate", d[0]).click(onChoice).appendTo(p);
-					d[1] && $("<span class='s2'>" + d[1] + "</span>").appendTo(p);
-					d[2] && $("<span class='s3'>" + d[2] + "</span>").appendTo(p);
+					$("<a href='#' class='s1'>" + d.word +"</a>").prop("candidate", d.word).click(onChoice).appendTo(p);
+					d.frequence && $("<span class='s2'>" + d.frequence + "</span>").appendTo(p);
+					d.meaning && $("<span class='s3'>" + d.meaning + "</span>").appendTo(p);
+					d.similarity && $("<span class='s2'>" + d.similarity.toFixed(2) + "</span>").appendTo(p);
 					$('#reviewcontent').append(p);
 				});
 			} else {
@@ -439,9 +439,8 @@ $(document).ready(function() {
 		M.review_typed = "refer";
 		if (M.refer_list == null) {
 			M.review_waiting = true;
-			getFromIciba(M.vocabulary || M.word, function(r, d) {
+			getFromIciba(M.vocabulary || M.word, function(r) {
 				M.refer_list = r;
-				M.derive_list = d;
 				M.review_waiting = false;
 				render();
 			});
@@ -498,25 +497,25 @@ $(document).ready(function() {
 	$('#old_similar_review').click(function(){
 		M.review_typed = "similar";
 		if (M.similar_list == null) {
-			M.similar_list = getSimilarity(M.vocabulary || M.word, 50);
+			M.similar_list = getSimilars(M.vocabulary || M.word, 10);
 			for (var i = 0; i < M.similar_list.length; i++) {
-				if (!M.similar_list[i][1]) {
-					getFrequency(M.similar_list[i][0], function(target, result, frequence, family) {
+				if (!M.similar_list[i].frequence) {
+					getFrequency(M.similar_list[i].word, function(target, result, frequence, family) {
 						if (result === "OK") {
 							M.similar_list.forEach(function(d){
-								if (d[0] == target) d[1] = frequence.fpages;
+								if (d.word == target) d.frequence = frequence.fpages;
 							});
 							render();
 						}
 					});
 				}
 			}
-			var t = M.similar_list.filter(function(d){return !d[2];}).map(function(x){return x[0];});
+			var t = M.similar_list.filter(function(d){return !d.meaning;}).map(function(x){return x.word;});
 			if (t.length > 0) {
 				getChineseFromGoogleTranslate(t, function(result, translate) {
 					if (result == "OK") {
 						M.similar_list.forEach(function(d){
-							if (translate[d[0]]) d[2] = translate[d[0]][0];
+							if (translate[d.word]) d.meaning = translate[d.word][0];
 						});
 						render();
 					}

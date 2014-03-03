@@ -75,38 +75,32 @@ test( "getCandidate", function() {
 	var e1 = [
               ["abaca", ""],
               ["aback", ""],
-              ["abacus", ""],
-              ["abacuses", ""] 
+              ["abacus", ""]
            ];
 
 	var a1 = getCandidate('abac*', 0);
 	deepEqual(a1, e1, "Passed!" );
 });
 
-test( "getSimilarity", function() {
-
+test( "getSimilar0", function() {
   var e1 = [
     ["abloom"],
     ["blood"],
-    ["blooms"],
-    ["bloomy"],
     ["boom"],
     ["broom"],
     ["gloom"],
     ["loom"]
   ];
 
-  var a1 = getSimilarity('bloom', 8);
+  var a1 = getSimilar0('bloom', 8);
   deepEqual(a1, e1, "Passed!" );
+
+  var e2 = [];
+
+  var a2 = getSimilar0('tremendous', 100);
+  deepEqual(a2, e2, "Passed!" );
 });
 
-test( "getSimilarity2", function() {
-
-  var e1 = [];
-
-  var a1 = getSimilarity('tremendous', 100);
-  deepEqual(a1, e1, "Passed!" );
-});
 
 test( "isSentence_en", function() {
   equal(isSentence("helloworld"), false, "Passed!");
