@@ -121,10 +121,72 @@ function onAdding() {
 	}
 }
 
+function handleChinese(text) {
+	M.translating = text;
+	render();
+	getTranslate(text, function(word, result, translate) {
+		if (word == M.translating) {
+			M.translating = false;
+			if (result !== "OK") {
+				M.errormsg = result;
+				render();
+				return;
+			}
+			if (translate.length == 1) {
+				queryWord(translate[0][0]);
+				return;
+			} 
+			M.candidate = translate;
+			render();
+		}
+	});
+}
+
+function handleWildcard(text) {
+	var candidate = getCandidate(text, 120);
+	if (candidate.length == 0) {
+		M.errormsg = "匹配失败，没有相应的单词。";
+		render();
+	} else if (candidate.length == 1) {
+		queryWord(candidate[0][0]);
+	} else {
+		M.candidate = candidate;
+		getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
+			if (result === "OK") {
+				M.candidate.forEach(function(d){
+					if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
+				})
+				render();
+			}
+		});
+		render();
+	}
+}
+
+function handleSimilar(text) {
+	var similars = getSimilars(text, 10);
+	M.candidate = similars.map(function(d) {return [d.word, ""];});
+	if (M.candidate[0][0] != text) {
+		M.candidate.unshift([text, ""]);
+	}
+	getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
+		if (result === "OK") {
+			M.candidate.forEach(function(d){
+				if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
+			})
+			render();
+		}
+	});
+	render();
+}
+
+function handleSentence(text) {
+	M.candidate = splitSentence(text).map(function(d){return [d,""];});
+	render();
+}
 
 var lastQueried = null;
-function onQuery() {
-	var text = $('#queryword').val();
+function onCandidate(text) {
 	if (text === undefined || text === null) {
 		return;
 	}
@@ -141,45 +203,11 @@ function onQuery() {
 	}
 
 	if (hasChinese(text)) {
-		M.translating = text;
-		render();
-		getTranslate(text, function(word, result, translate) {
-			if (word == M.translating) {
-				M.translating = false;
-				if (result !== "OK") {
-					M.errormsg = result;
-					render();
-					return;
-				}
-				if (translate.length == 1) {
-					queryWord(translate[0][0]);
-					return;
-				} 
-				M.candidate = translate;
-				render();
-			}
-		});
+		handleChinese(text);
 	} else if (areEnglish(text)){
-		queryWord(text);
+		handleSimilar(text);
 	} else {
-		var candidate = getCandidate(text, 120);
-		if (candidate.length == 0) {
-			M.errormsg = "匹配失败，没有相应的单词。";
-			render();
-		} else if (candidate.length == 1) {
-			queryWord(candidate[0][0]);
-		} else {
-			M.candidate = candidate;
-			getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
-				if (result === "OK") {
-					M.candidate.forEach(function(d){
-						if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
-					})
-					render();
-				}
-			});
-			render();
-		}
+		handleWildcard(text);
 	}
 }
 
@@ -187,8 +215,15 @@ function onChoice() {
 	lastQueried = null;
 	var t = $(this).prop("candidate") || $(this).attr("candidate");
 	if (t) {
-		$('#queryword').val(t);
-		onQuery();
+		queryWord(t);
+	}
+}
+
+function onPrimary() {
+	lastQueried = null;
+	var t = M.candidate && M.candidate[0][0];
+	if (t) {
+		queryWord(M.candidate[0][0]);
 	}
 }
 
@@ -363,18 +398,19 @@ $(document).ready(function() {
 	M.reset();
 
 	if (preference.get().IncrementalQuery) {
-		$('#queryword').keyup(onQuery);
+		$('#queryword').keyup(function(event){
+			if (event.which == 13) {
+				onPrimary();
+			} else {
+				onCandidate($('#queryword').val());
+			}
+		});
 	} 
 
-	$('#wordquery').click(onQuery);
+	$('#wordquery').click(onPrimary);
 
 	$('#old_forget').click(onForget);
 	$('#new_adding').click(onAdding);
-
-	Mousetrap.bindGlobal('enter', function() {
-		onQuery();
-		return false;
-	});
 
 	Mousetrap.bindGlobal(['ctrl+s', 'command+s'], function() {
 		onAdding();
@@ -536,12 +572,14 @@ $(document).ready(function() {
 		if (words && words.length > 0) {
 			$('#queryword').blur();
 			$('#queryword').val(words);
+
 			if (isSentence(words) && !isPhrase(words)) {
-				M.candidate = splitSentence(words).map(function(d){return [d,""];});
-				render();
+				handleSentence(words)
+			} else if (hasChinese(words)) {
+				handleChinese(words);
 			} else {
-				onQuery();
-			}
+				queryWord(words);
+			} 
 		} else {
 			$('#queryword').focus();
 		}
