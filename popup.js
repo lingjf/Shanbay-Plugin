@@ -201,10 +201,12 @@ function render() {
 
 	if (M.candidate != null && M.candidate.length > 1) {
 		$('#pp_candidate').empty();
+		var ul = $("<ul></ul>");
 		M.candidate.forEach(function(d){
-			var c = "<div class='cc'>" + "<span class='c1'>"+ d[0] + "</span> <span class='c2'>" + d[1] + "</span></div>";
-			$(c).prop("candidate", d[0]).click(onChoice).appendTo($('#pp_candidate'));
+			var c = "<li><a class='cc' href='#'>" + "<span class='c1'>"+ d[0] + "</span> <span class='c2'>" + d[1] + "</span></a></li>";
+			$(c).prop("candidate", d[0]).click(onChoice).appendTo(ul);
 		});
+		$('#pp_candidate').append(ul);
 		$('#pp_candidate').show();
 	} else {
 		$('#pp_candidate').empty();
