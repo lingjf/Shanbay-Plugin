@@ -160,6 +160,7 @@ function getFromIciba(word, callback)
         	if(xhr.status == 200) {
 				var ReferType = ["音节划分", "复数", "过去式", "过去分词", "现在分词", "第三人称单数", "比较级", "最高级"];
 	        	var ReferList = []; 
+	        	var Profile = {'definition':[]};
 	        	var t0 = $(xhr.responseText.replace(/<img[^>]*>/g,""));
 	        	var t1 = t0.find('#emphasize_ec_word .tips_content');
 	        	t1.each(function(index){
@@ -170,6 +171,7 @@ function getFromIciba(word, callback)
 	    				if (ReferType.indexOf(d) !== -1 && c && c.length > 0) {
 							ReferList.push([d, [c]]);
 	    				}
+	    				Profile['break'] = c;
 	        	});
 	        	var t2 = t0.find('.group_prons .group_inf');
 	        	t2.each(function(index) {    		
@@ -188,10 +190,30 @@ function getFromIciba(word, callback)
 	    				}
 	    			});
 	        	});
+	        	var t4 = t0.find('.prons .eg');
+	        	t4.each(function(index) {
+	        		var v = this.innerText.trim().split('[');
+	        		if (v.length == 2) {
+	        			if (v[0].trim() == '美') {
+	        				var pron = '[' + v[1].trim();
+	        				Profile['pronounce'] = pron;
+							var l = /(http:\/\/[^\'\"]+\.mp3)/.exec(this.innerHTML);
+							if (l.length > 0) {
+								Profile['audio'] = l[0];
+							}
+	        			}
+	        		}
+	        	});
+
+	        	var t5 = t0.find('.group_prons .group_pos p');
+	        	t5.each(function(index) {
+	        		var v = this.innerText.replace(/\s+/g, '');
+	        		Profile['definition'].push(v);
+	        	});
 	        	// console.log(ReferList);
-	            callback(ReferList);
+	            callback(word, "OK", ReferList, Profile);
         	} else {
-        		callback([]);
+        		callback(word, "NOK", [], {});
         	}
         } 
     }

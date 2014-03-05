@@ -27,6 +27,7 @@ var M = {
 		this.family_list = null;
 		this.synonym_list = null;
 		this.similar_list = null;
+		this.phontic_list = null;
 	}, 
 
 	set: function(s) {
@@ -262,7 +263,7 @@ function render() {
 	if (isValid(M.vocabulary)) {
 		$('#pp_heading, #pp_body').show();
 		$('#word').html(M.vocabulary);
-		$('#pronunciation').html(M.pronunciation ? "[" + M.pronunciation + "]" : "");
+		$('#pronunciation').html(M.pronunciation ? "[" + M.pronunciation + "]" : "").prop("pronounce", M.audio);
 		if (M.frequence) {
 			$('#frequence').html(/*M.frequence.pages + "~" + */ M.frequence.fpages + "");
 		}
@@ -379,6 +380,27 @@ function render() {
 			$('#old_similar_review').css("border-bottom", "none");
 		}
 
+		if (M.review_typed === "phontic") {
+			$('#old_phontic_review').css("border-bottom", "1px solid rgb(160, 160, 160)");
+			if (M.phontic_list && M.phontic_list.length > 0) {
+				$('#reviewcontent').empty();
+				M.phontic_list.forEach(function(d){
+					var p = $("<div class='similar'> </div>");
+					$("<a href='#' class='s1'>" + d.word +"</a>").prop("candidate", d.word).click(onChoice).appendTo(p);
+					d.frequence && $("<span class='s2'>" + d.frequence + "</span>").appendTo(p);
+					d.pronounce && $("<span class='s3'>" + d.pronounce + "</span>").appendTo(p);
+					d.meaning && $("<span class='s3'>" + d.meaning + "</span>").appendTo(p);
+					d.pronounce && p.prop("pronounce", d.audio).mouseenter(pronunceWord);
+					$('#reviewcontent').append(p);
+				});
+			} else {
+				$('#reviewcontent').html(" 无 ");
+			}
+			$('#reviewcontent').show();
+		} else {
+			$('#old_phontic_review').css("border-bottom", "none");
+		}
+
 		if (M.review_waiting) {
 			$('#reviewcontent').html("<img src='image/inquire.gif'/>");
 		} 
@@ -398,9 +420,14 @@ function render() {
 	}
 }
 
+var howlSound = null
 function pronunceWord() {
-	if (M.audio) {
-		var sound = new Howl({urls: [M.audio] }).play();
+	var t = $(this).prop("pronounce") || $(this).attr("pronounce");
+	if (t) {
+		if (howlSound != null) {
+			howlSound.stop();
+		}
+		howlSound = new Howl({urls: [t], onend: function(){howlSound=null;}}).play();
 	}
 }
 
@@ -493,8 +520,8 @@ $(document).ready(function() {
 		M.review_typed = "refer";
 		if (M.refer_list == null) {
 			M.review_waiting = true;
-			getFromIciba(M.vocabulary || M.word, function(r) {
-				M.refer_list = r;
+			getFromIciba(M.vocabulary || M.word, function(target, result, refer, profile) {
+				M.refer_list = refer;
 				M.review_waiting = false;
 				render();
 			});
@@ -570,6 +597,49 @@ $(document).ready(function() {
 				getChineseFromGoogleTranslate(t, function(result, translate) {
 					if (result == "OK") {
 						M.similar_list.forEach(function(d){
+							if (translate[d.word]) d.meaning = translate[d.word][0];
+						});
+						render();
+					}
+				});
+			}
+		}
+		render();
+	});
+
+	$('#old_phontic_review').click(function(){
+		M.review_typed = "phontic";
+		if (M.phontic_list == null) {
+			var word = M.vocabulary || M.word;
+			M.phontic_list = getPhontics(word, 10).filter(function(d){return word!=d.word;});
+			for (var i = 0; i < M.phontic_list.length; i++) {
+				if (!M.phontic_list[i].frequence) {
+					getFrequency(M.phontic_list[i].word, function(target, result, frequence, family) {
+						if (result === "OK") {
+							M.phontic_list.forEach(function(d){
+								if (d.word == target) d.frequence = frequence && frequence.fpages;
+							});
+							render();
+						}
+					});
+					getFromIciba(M.phontic_list[i].word, function(target, result, refer, profile) {
+						if (result === "OK") {
+							M.phontic_list.forEach(function(d){
+								if (d.word == target) {
+									d.pronounce = profile.pronounce;
+									d.audio = profile.audio;
+								}
+							});
+							render();
+						}
+					});
+				}
+			}
+			var t = M.phontic_list.filter(function(d){return !d.meaning;}).map(function(x){return x.word;});
+			if (t.length > 0) {
+				getChineseFromGoogleTranslate(t, function(result, translate) {
+					if (result == "OK") {
+						M.phontic_list.forEach(function(d){
 							if (translate[d.word]) d.meaning = translate[d.word][0];
 						});
 						render();
