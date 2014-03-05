@@ -142,8 +142,26 @@ function handleChinese(text) {
 	});
 }
 
+var delayTranslate = null;
+function __translateCandidate() {
+	if (delayTranslate !== null) {
+		clearTimeout(delayTranslate);
+	}
+	delayTranslate = setTimeout(function() {
+		delayTranslate = null;
+		getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
+			if (result === "OK") {
+				M.candidate.forEach(function(d){
+					if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
+				});
+				render();
+			}
+		});
+	}, 600);
+}
+
 function handleWildcard(text) {
-	var candidate = getCandidate(text, 120);
+	var candidate = getWildcards(text, 60);
 	if (candidate.length == 0) {
 		M.errormsg = "匹配失败，没有相应的单词。";
 		render();
@@ -151,14 +169,7 @@ function handleWildcard(text) {
 		queryWord(candidate[0][0]);
 	} else {
 		M.candidate = candidate;
-		getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
-			if (result === "OK") {
-				M.candidate.forEach(function(d){
-					if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
-				})
-				render();
-			}
-		});
+		__translateCandidate();
 		render();
 	}
 }
@@ -166,17 +177,13 @@ function handleWildcard(text) {
 function handleSimilar(text) {
 	var similars = getSimilars(text, 10);
 	M.candidate = similars.map(function(d) {return [d.word, ""];});
+	// if (M.candidate[0][0] == text) {
+	// 	return queryWord(M.candidate[0][0]);
+	// }
 	if (M.candidate[0][0] != text) {
 		M.candidate.unshift([text, ""]);
 	}
-	getChineseFromGoogleTranslate(M.candidate.map(function(d){return d[0].trim();}), function(result, translate) {
-		if (result === "OK") {
-			M.candidate.forEach(function(d){
-				if (translate[d[0]]) d[1] = translate[d[0]][1] ? translate[d[0]][1].join("; ") : translate[d[0]][0];
-			})
-			render();
-		}
-	});
+	__translateCandidate();
 	render();
 }
 
@@ -205,7 +212,11 @@ function onCandidate(text) {
 	if (hasChinese(text)) {
 		handleChinese(text);
 	} else if (areEnglish(text)){
-		handleSimilar(text);
+		if (preference.get().IncrementalQuery) {
+			queryWord(text);
+		} else {
+			handleSimilar(text);
+		}
 	} else {
 		handleWildcard(text);
 	}
@@ -223,7 +234,7 @@ function onPrimary() {
 	lastQueried = null;
 	var t = M.candidate && M.candidate[0][0];
 	if (t) {
-		queryWord(M.candidate[0][0]);
+		queryWord(t);
 	}
 }
 
@@ -393,19 +404,24 @@ function pronunceWord() {
 	}
 }
 
+var delayCandidate = null;
 $(document).ready(function() {
 	// document.execCommand('paste');
 	M.reset();
 
-	if (preference.get().IncrementalQuery) {
-		$('#queryword').keyup(function(event){
-			if (event.which == 13) {
-				onPrimary();
-			} else {
-				onCandidate($('#queryword').val());
+	$('#queryword').keyup(function(event){
+		if (event.which == 13) {
+			onPrimary();
+		} else {
+			if (delayCandidate !== null) {
+				clearTimeout(delayCandidate);
 			}
-		});
-	} 
+			delayCandidate = setTimeout(function() {
+				delayCandidate = null;
+				onCandidate($('#queryword').val());
+			}, 100);
+		}
+	});
 
 	$('#wordquery').click(onPrimary);
 
@@ -535,7 +551,8 @@ $(document).ready(function() {
 	$('#old_similar_review').click(function(){
 		M.review_typed = "similar";
 		if (M.similar_list == null) {
-			M.similar_list = getSimilars(M.vocabulary || M.word, 10);
+			var word = M.vocabulary || M.word;
+			M.similar_list = getSimilars(word, 10).filter(function(d){return word!=d.word;});
 			for (var i = 0; i < M.similar_list.length; i++) {
 				if (!M.similar_list[i].frequence) {
 					getFrequency(M.similar_list[i].word, function(target, result, frequence, family) {

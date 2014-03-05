@@ -70,7 +70,7 @@ test( "wildCard2Regex", function() {
   equal( wildCard2Regex('ab?c'), "^ab.c$","Passed!" );
 });
 
-test( "getCandidate", function() {
+test( "getWildcards", function() {
 
 	var e1 = [
               ["abaca", ""],
@@ -78,7 +78,7 @@ test( "getCandidate", function() {
               ["abacus", ""]
            ];
 
-	var a1 = getCandidate('abac*', 0);
+	var a1 = getWildcards('abac*', 0);
 	deepEqual(a1, e1, "Passed!" );
 });
 
