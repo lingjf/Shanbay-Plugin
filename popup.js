@@ -374,7 +374,7 @@ function render() {
 					$("<a href='#' class='s1'>" + d.word +"</a>").prop("candidate", d.word).click(onChoice).appendTo(p);
 					d.frequence && $("<span class='s2'>" + d.frequence + "</span>").appendTo(p);
 					d.meaning && $("<span class='s3'>" + d.meaning + "</span>").appendTo(p);
-					d.similarity && $("<span class='s2'>" + d.similarity.toFixed(2) + "</span>").appendTo(p);
+					// d.similarity && $("<span class='s2'>" + d.similarity.toFixed(2) + "</span>").appendTo(p);
 					$('#reviewcontent').append(p);
 				});
 			} else {

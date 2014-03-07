@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> 使用帮助 </title>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+		body {
+			padding-left: 30px;
+		}
+		.backlog {
+			font-style: normal;
+			font-family: "Helvetica Neue", Arial, adelle-sans, sans-serif;
+			font-size: 18px;
+			line-height: 1.625em;
+			color: #4b4b4b;
+		}
+		.backlog h2 {
+			font-size: 28px;
+			line-height: 1em;
+			font-weight: bold;
+		}
+		.backlog h2>span {
+			color: #cbcbcb;
+		}
+		.backlog p {
+			margin-left: 50px;
+		}
+		.backlog>img {
+			margin-top: 20px;
+			margin-bottom: 20px;
+			margin-left: 80px;
+
+			-moz-box-shadow:    3px 3px 5px 6px #ddd;
+			-webkit-box-shadow: 3px 3px 5px 6px #ddd;
+			box-shadow:         3px 3px 5px 6px #ddd;
+		}
+
+    </style>
+</head>
+
+<body>
+	<div class='backlog'>
+		<h2> <span> 1- </span> 网页划词，并加入扇贝循环背诵系统 </h2>
+		<p>
+			在网页中选中一个单词 (1.)， 
+			再点击插件图标 <img src="image/shellfish-darkblue-19.png" /> (2.)，
+			点击 <button type="button" class="btn btn-success btn-sm"> 添加入库 </button> (3.) <br>
+
+		</p>
+		<img src="image/help-01-01.png" />
+		<p>
+			可以在Chrome中给插件设置一个快捷键，代替点击插件图标 <img src="image/shellfish-darkblue-19.png" />的操作。 <br>
+
+		</p>
+		<img src="image/help-01-02.png" />
+		<img src="image/help-01-03.png" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 2- </span> 单词已遗忘，从头再背 </h2>
+		<p>
+			点击 ”我忘了“ 按钮 <button type="button" class="btn btn-warning btn-sm"> 我忘了 </button>。 <br>
+		</p>
+		<img src="image/help-02-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 3- </span> 打开扇贝网的单词专页 </h2>
+		<p>
+			点击 ”查看“ 按钮 <button type="button" class="btn btn-info btn-sm"> 查看 </button>。 <br>
+		</p>
+		<img src="image/help-03-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 4- </span> 超链接中单词划词 </h2>
+		<p>
+			超链接中间的单词很难选中，因为一按鼠标网页就跳转了，导致无法选中。 <br>
+			选中一段文字，再点击插件的图标<img src="image/shellfish-darkblue-19.png" /> ，各个单词会单独列出。 <br>
+		</p>
+		<img src="image/help-04-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 5- </span> 单词的出现频率 </h2>
+		<p>
+			每 Ｎ 个网页出现该单词一次。 <br>
+		</p>
+		<img src="image/help-05-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 6- </span> 在查询输入框，查英文单词 </h2>
+		<p>
+			按照单词拼写的相似度列出若干个单词。 <br>
+		</p>	
+		<img src="image/help-06-01.jpeg" /> <br>
+		<p>
+			如果打开 <a href='options.html'>“Incremental Query“</a> 选项，则会实时查词当前输入的字符。 <br>
+		</p>
+		<img src="image/help-07-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 7- </span> 在查询输入框，使用通配符查单词 </h2>
+		<p>
+			<strong style="font-size:2em;"><code>?</code></strong>  匹配任意一个英文字母， 
+			<strong style="font-size:2em;"><code>*</code></strong>  匹配任意多个英文字母（包括零个）。 <br>
+			比如： <strong><code>st?ff</code></strong> 匹配 <code>staff</code>、 <code>stuff</code>、 <code>stiff</code>  <br>
+			而 <strong><code>st*ff</code></strong> 则匹配 
+				<code>staff</code>、 <code>stuff</code>、 <code>stiff</code>、 <code>stroganoff</code> <br>
+			<strong style="font-size:1.5em;"><code>? *</code></strong>  可以任意组合，比如： <strong><code>st?ff*</code></strong> 匹配 
+			<code>staff</code>、 <code>stuff</code>、 <code>stiff</code>、 <code>stiffen</code> 、 <code>stiffing</code>、 <code>stiffy</code><br>
+		</p>
+		<img src="image/help-08-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 8- </span> 在查询输入框，查中文词 </h2>
+		<p>
+		</p>
+		<img src="image/help-09-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 9- </span> 查看单复数、时态、第三人称单数等 </h2>
+		<p>
+			点击 ”查看“ 按钮右侧的向下箭头，选择“单复数”。 <br>
+		</p>
+		<img src="image/help-10-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 10- </span> 查看同义词或近义词 </h2>
+		<p>
+			点击 ”查看“ 按钮右侧的向下箭头，选择“近义词”。 <br>
+		</p>
+		<img src="image/help-11-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 11- </span> 查看词家族 </h2>
+		<p>
+			点击 ”查看“ 按钮右侧的向下箭头，选择“词家族”。 会以目录的形式列出一系列单词。<br>
+			使用“词家族”可以查到单词的词根，词根通常更短，更容易记忆。也可以了解派生出来的单词。<br>
+		</p>
+		<img src="image/help-12-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 12- </span> 查看拼写相似的单词 </h2>
+		<p>
+			点击 ”查看“ 按钮右侧的向下箭头，选择“形似词”。 按相似度从高到低列出一系列单词。<br>
+			拼写相似的单词通常容易相互混淆，使用“形似词”功能可以快速全面地列出容易混淆的单词，对比后澄清此类混淆。<br>
+			比如：”staff“、 ”stuff“、 ”stiff“ 这三个单词可以使用“形似词”功能同时列出。<br>
+		</p>
+		<img src="image/help-13-01.jpeg" />
+	</div>
+
+	<div class='backlog'>
+		<h2> <span> 13- </span> 查看读音相同或相似的单词 </h2>
+		<p>
+	 
+			点击 ”查看“ 按钮右侧的向下箭头，选择“音似词”。 列出一系列读音相同或相似单词。<br>
+			读音相同或相似的单词通常也容易相互混淆，使用“音似词”功能可以澄清此类混淆。<br>
+		</p>
+		<img src="image/help-14-01.jpeg" />
+	</div>
+
+</body>
+
+<script src="lib/jquery.js"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+</html>
+

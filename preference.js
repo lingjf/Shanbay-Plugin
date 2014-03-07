@@ -1,8 +1,8 @@
 
 var preference = {
 	defaults : {
-		TtsSpeakOut : true,
-		IncrementalQuery : true
+		TtsSpeakOut : false,
+		IncrementalQuery : false
 	},
 
 	get : function() {
