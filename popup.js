@@ -158,11 +158,15 @@ function __translateCandidate() {
 				render();
 			}
 		});
-	}, 600);
+	}, 300);
 }
 
 function handleWildcard(text) {
-	var candidate = getWildcards(text, 60);
+	if (text == "*") {
+		render();
+		return;
+	}
+	var candidate = getWildcards(text, 21);
 	if (candidate.length == 0) {
 		M.errormsg = "匹配失败，没有相应的单词。";
 		render();
@@ -176,7 +180,7 @@ function handleWildcard(text) {
 }
 
 function handleSimilar(text) {
-	var similars = getSimilars(text, 10);
+	var similars = getSimilars(text, 15);
 	M.candidate = similars.map(function(d) {return [d.word, ""];});
 	// if (M.candidate[0][0] == text) {
 	// 	return queryWord(M.candidate[0][0]);
@@ -184,6 +188,7 @@ function handleSimilar(text) {
 	if (M.candidate[0][0] != text) {
 		M.candidate.unshift([text, ""]);
 	}
+	// M.candidate.push(["", "......"]);
 	__translateCandidate();
 	render();
 }
