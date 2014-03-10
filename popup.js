@@ -48,6 +48,19 @@ function queryWord(word) {
 	M.word = word;
 	if (isValid(M.word)) {
 		M.geting = true;
+		getFromIciba(M.vocabulary || M.word, function(target, result, refer, profile) {
+			if (target != M.word) {
+				return;
+			}
+			if (result === "OK") {
+				M.refer_list = refer;
+				M.vocabulary || (M.vocabulary = target);
+				M.pronunciation || (M.pronunciation = profile['pronounce']);
+				M.audio || (M.audio = profile['audio']);
+				M.definition || (M.definition = profile['definition'].join('\n'));
+				render();
+			}
+		});
 		getShanbayWord(M.word, function(target, result, value) {
 			if (target != M.word) {
 				return;
