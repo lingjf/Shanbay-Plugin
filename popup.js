@@ -206,7 +206,7 @@ function handleParagraph(text) {
 }
 
 var lastQueried = null;
-function onCandidate(text) {
+function doCandidate(text) {
 	if (text === undefined || text === null) {
 		return;
 	}
@@ -260,6 +260,8 @@ function onPrimary() {
 	var t = M.candidate && M.candidate[0][0];
 	if (t) {
 		queryWord(t);
+	} else {
+		doCandidate($('#queryword').val());
 	}
 }
 
@@ -460,7 +462,7 @@ $(document).ready(function() {
 	// document.execCommand('paste');
 	M.reset();
 	$('#queryword').focus(function(){
-		onCandidate($('#queryword').val());
+		lastQueried = null;
 	});
 	$('#queryword').keyup(function(event){
 		if (event.which == 13) {
@@ -471,7 +473,7 @@ $(document).ready(function() {
 			}
 			delayCandidate = setTimeout(function() {
 				delayCandidate = null;
-				onCandidate($('#queryword').val());
+				doCandidate($('#queryword').val());
 			}, 100);
 		}
 	});
