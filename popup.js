@@ -193,9 +193,16 @@ function handleSimilar(text) {
 	render();
 }
 
-function handleSentence(text) {
-	M.candidate = splitSentence(text).map(function(d){return [d,""];});
-	render();
+function handleParagraph(text) {
+	var words = splitParagraph(text);
+	if (words.length == 0) {
+		// render();
+	} else if (words.length == 1) {
+		queryWord(words[0]);
+	} else {
+		M.candidate = words.map(function(d){return [d, ""];});
+		render();
+	}
 }
 
 var lastQueried = null;
@@ -215,16 +222,23 @@ function onCandidate(text) {
 		return;
 	}
 
-	if (hasChinese(text)) {
-		handleChinese(text);
-	} else if (areEnglish(text)){
-		if (preference.get().IncrementalQuery) {
-			queryWord(text);
-		} else {
-			handleSimilar(text);
-		}
-	} else {
-		handleWildcard(text);
+	switch(classifyText(text)) {
+		case "paragraph":
+			handleParagraph(text);
+			break;
+		case "chinese":
+			handleChinese(text);
+			break;
+		case "wildcard":
+			handleWildcard(text);
+			break;	
+		default:
+			if (preference.get().IncrementalQuery) {
+				queryWord(text);
+			} else {
+				handleSimilar(text);
+			}
+			break;
 	}
 }
 
@@ -233,6 +247,11 @@ function onChoice() {
 	var t = $(this).prop("candidate") || $(this).attr("candidate");
 	if (t) {
 		queryWord(t);
+	} else {
+		var r = $('#queryword').val();
+		if (r) {
+			queryWord(r.trim());
+		}
 	}
 }
 
@@ -440,7 +459,9 @@ var delayCandidate = null;
 $(document).ready(function() {
 	// document.execCommand('paste');
 	M.reset();
-
+	$('#queryword').focus(function(){
+		onCandidate($('#queryword').val());
+	});
 	$('#queryword').keyup(function(event){
 		if (event.which == 13) {
 			onPrimary();
@@ -665,13 +686,18 @@ $(document).ready(function() {
 			$('#queryword').blur();
 			$('#queryword').val(words);
 
-			if (isSentence(words) && !isPhrase(words)) {
-				handleSentence(words)
-			} else if (hasChinese(words)) {
-				handleChinese(words);
-			} else {
-				queryWord(words);
-			} 
+			switch(classifyText(words)) {
+				case "paragraph":
+					handleParagraph(words);
+					break;
+				case "chinese":
+					handleChinese(words);
+					break;
+				default:
+					queryWord(words);
+					break;
+			}
+
 		} else {
 			$('#queryword').focus();
 		}
