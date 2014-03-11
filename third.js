@@ -195,7 +195,7 @@ function getFromIciba(word, callback)
 	        		var v = this.innerText.trim().split('[');
 	        		if (v.length == 2) {
 	        			if (v[0].trim() == '美') {
-	        				var pron = '[' + v[1].trim();
+	        				var pron = v[1].replace("]", "").trim();
 	        				Profile['pronounce'] = pron;
 							var l = /(http:\/\/[^\'\"]+\.mp3)/.exec(this.innerHTML);
 							if (l.length > 0) {

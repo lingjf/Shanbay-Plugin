@@ -520,7 +520,7 @@ $(document).ready(function() {
 		return false;
 	});
 
-	Mousetrap.bindGlobal(['ctrl+p', 'command+p'], function() {
+	Mousetrap.bindGlobal(['ctrl+u', 'command+u'], function() {
 		pronunceWord();
 		return false;
 	});
