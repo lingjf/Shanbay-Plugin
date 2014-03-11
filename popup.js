@@ -48,7 +48,7 @@ function queryWord(word) {
 	M.word = word;
 	if (isValid(M.word)) {
 		M.geting = true;
-		getFromIciba(M.vocabulary || M.word, function(target, result, refer, profile) {
+		getFromIciba(M.word, function(target, result, refer, profile) {
 			if (target != M.word) {
 				return;
 			}
@@ -61,6 +61,7 @@ function queryWord(word) {
 				render();
 			}
 		});
+
 		getShanbayWord(M.word, function(target, result, value) {
 			if (target != M.word) {
 				return;
@@ -80,7 +81,7 @@ function queryWord(word) {
 					percentage = 100.0;
 				}
 				M.percentage = percentage;
-
+				
 				getFrequency(M.vocabulary, function(target, result, frequence, family) {
 					if (target == M.vocabulary && result === "OK") {
 						M.frequence = frequence;
