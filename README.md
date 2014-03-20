@@ -3,6 +3,25 @@ Shanbay-Plugin
 
 A Chrome plugin for shanbay.com to recite English vocabulary.
 
+##Backlog
+
+| Backlog Item  | Status |
+| ------------- | ------------- |
+| Refactoring with Backbone and Mustache  | Ongoing  |
+| Add help page  | Done  |
+| Query word by spelling similar in input box  | Done  |
+| List out pronounce similar words  | Done  |
+| List out spelling similar words  | Done  |
+| Query word by wildcard from input box  | Done  |
+| Query word family  | Done  |
+| Display word frequency  | Done  |
+| Query synonym  | Done  |
+| Query word by input box  | Done  |
+| Reading selected text and send to plugin  | Done  |
+| Forget word in shanbay  | Done  |
+| Add new word to shanbay  | Done  |
+| Query from shanbay  | Done  |
+| Chrome Extension framework  | Done  |
 
 ##Thanks
 - jQuery http://jquery.com
