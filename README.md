@@ -8,6 +8,8 @@ A Chrome plugin for shanbay.com to recite English vocabulary.
 | Backlog Item  | Status |
 | ------------- | ------------- |
 | Refactoring with Backbone and Mustache  | Ongoing  |
+| Forward and backward navigation  | Ongoing  |
+| Disable or enable selection while changing tabs  | Done  |
 | Add help page  | Done  |
 | Query word by spelling similar in input box  | Done  |
 | List out pronounce similar words  | Done  |

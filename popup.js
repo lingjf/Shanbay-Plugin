@@ -695,7 +695,7 @@ $(document).ready(function() {
 	$('#pronunciation').mouseenter(pronunceWord);
 
 	chrome.runtime.getBackgroundPage(function(backgroundPage) {
-		var words = backgroundPage.selectWord;
+		var words = backgroundPage.getSelected();
 		// $('#queryword').prop("placeholder", words);
 		
 		if (words && words.length > 0) {

@@ -1,6 +1,6 @@
 {
   "name": "__MSG_application_title__",
-  "version": "1.12",
+  "version": "1.13",
   "description": "A Shanbay plugin to add new word to Shanbay.com easily for reciting and memory. ",
   "manifest_version": 2,
   "default_locale": "en",
